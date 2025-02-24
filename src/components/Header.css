@@ -1,0 +1,174 @@
+/* Header Container */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5%;
+  background: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Left Section (Logo + Search) */
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+/* Logo */
+.logo {
+  width: 120px;
+  height: auto;
+  transition: transform 0.3s ease-in-out;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* Search Box */
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #f4f4f4;
+  border-radius: 30px;
+  padding: 8px 15px;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.search-box:hover {
+  background: #e0e0e0;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  color: #555;
+  font-size: 18px;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  flex: 1;
+  font-size: 16px;
+  padding-left: 40px;
+}
+
+.filter-icon {
+  color: #555;
+  font-size: 18px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.filter-icon:hover {
+  transform: rotate(90deg);
+}
+
+/* Icons Group */
+.icon-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Icon Buttons */
+.icon-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f4f4f4;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.icon-circle:hover {
+  background: #dceefb;
+  color: #007bff;
+}
+
+/* Notification Dot */
+.notification {
+  position: relative;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: red;
+  border-radius: 50%;
+}
+
+/* Profile Picture */
+.profile-pic {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.profile-pic:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1024px) {
+  .header-container {
+    padding: 12px 4%;
+  }
+
+  .search-box {
+    max-width: 400px;
+  }
+
+  .icon-circle {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .left-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .icon-group {
+    gap: 10px;
+  }
+}

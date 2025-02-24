@@ -1,0 +1,154 @@
+.hero-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  padding:90px 5%;
+  flex-wrap: wrap;
+  background-color:#f8f9fa ;
+}
+ 
+/* Card styles */
+.card {
+  display: flex;
+  flex-direction: row;
+  align-items: space-between;
+  justify-content: space-between;
+  color: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 48%;
+  min-height: 250px;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+ 
+/* Hover effect */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+}
+ 
+/* First card background */
+.card-primary {
+  background: #5c999e !important;
+}
+ 
+/* Second card background */
+.card-secondary {
+  background: #5c999e !important;
+}
+ 
+.card-content {
+  flex: 1;
+  text-align: left;
+  animation: fadeIn 0.8s ease-in-out;
+}
+ 
+/* Hero image styling */
+.hero-image-container {
+  display: flex;
+  justify-content: flex-end;
+  /* align-items: center; */
+  animation: slideIn 1s ease-in-out;
+}
+ 
+.hero-image {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease-in-out;
+}
+ 
+.hero-image:hover {
+  transform: scale(1.05);
+}
+ 
+/* Button styling */
+.btn-rent {
+  background: white;
+  color: #007bff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
+  transition: all 0.3s ease-in-out;
+}
+ 
+.btn-rent:hover {
+  background: #0056b3;
+  color: white;
+}
+ 
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+ 
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+ 
+@media screen and (max-width: 1024px) {
+  .hero-section {
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 10px; /* Reduced padding */
+  }
+
+  .card {
+    width: 85%; /* Slightly reduced width */
+    flex-direction: column;
+    text-align: center;
+    padding: 18px;
+  }
+
+  .hero-image-container {
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .hero-image {
+    max-width: 200px; /* Smaller image */
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .hero-section {
+    padding: 100px 5px; /* Further reduced padding */
+  }
+
+  .card {
+    width: 80%; /* Make the cards more compact */
+    padding: 15px;
+  }
+
+  .hero-image {
+    max-width: 180px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .hero-section {
+    padding: 80px 5px; /* More compact on smaller screens */
+  }
+
+  .card {
+    width: 90%; /* Increase width slightly for better readability */
+    padding: 12px;
+  }
+
+  .hero-image {
+    max-width: 150px;
+  }
+
+  .btn-rent {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}

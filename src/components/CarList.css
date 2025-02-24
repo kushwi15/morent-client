@@ -1,0 +1,249 @@
+/* ============================
+   General Styles
+   ============================ */
+   .car-list-container {
+    width: 100%;
+    padding: 40px 5%;
+    background: #f8f9fa;
+}
+ 
+/* ============================
+   Header Section
+   ============================ */
+.car-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 5%;
+}
+ 
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 20px;
+}
+ 
+/* Buttons */
+.btn-popular,
+.btn-view-all {
+    background: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+ 
+.btn-popular {
+    color: black;
+}
+ 
+.btn-view-all {
+    color: #000;
+}
+ 
+.btn-popular:hover,
+.btn-view-all:hover {
+    background: #2563eb;
+    color: white;
+}
+ 
+/* ============================
+   Car List Grid
+   ============================ */
+.car-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Default: 4 cards per row */
+    gap: 20px;
+    padding: 0;
+}
+ 
+/* ============================
+   Individual Car Card
+   ============================ */
+.car-card {
+    position: relative;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 380px;
+}
+ 
+.car-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+}
+ 
+/* ============================
+   Car Image
+   ============================ */
+   .car-image {
+    width: 100%;
+    aspect-ratio: 16/9; /* Maintain aspect ratio */
+    object-fit: contain; /* Ensure the full image is visible */
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+ 
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+    .car-image {
+        aspect-ratio: 16/10; /* Slightly adjust aspect ratio on smaller screens */
+    }
+}
+ 
+@media (max-width: 600px) {
+    .car-image {
+        aspect-ratio: 16/11; /* Further adjust for better mobile fit */
+    }
+}
+ 
+/* ============================
+   Car Price & Rent Button Section
+   ============================ */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 10px;
+}
+ 
+/* Price */
+.price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 15px;
+}
+ 
+/* Rent Button */
+.btn-rent {
+    background: #7ad8dc;
+    color: black;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease-in-out;
+}
+ 
+.btn-rent:hover {
+    background: #2563eb;
+}
+ 
+/* ============================
+   Like Icon
+   ============================ */
+.like-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    color: #bbb;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+ 
+.like-icon.liked {
+    color: red;
+}
+ 
+.like-icon:hover {
+    transform: scale(1.2);
+}
+ 
+/* ============================
+   Car Information Section
+   ============================ */
+.car-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 14px;
+    color: #789;
+}
+ 
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+ 
+/* ============================
+   Optimized Responsive Design
+   ============================ */
+ 
+/* Large screens (1200px and above) */
+@media (min-width: 1200px) {
+    .car-list {
+        grid-template-columns: repeat(4, 1fr); /* Show 4 cards per row */
+    }
+}
+ 
+/* Medium screens (992px - 1199px) */
+@media (max-width: 1199px) {
+    .car-list {
+        grid-template-columns: repeat(3, 1fr); /* Show 3 cards per row */
+    }
+}
+ 
+/* Tablets (768px - 991px) */
+@media (max-width: 991px) {
+    .car-list {
+        grid-template-columns: repeat(2, 1fr); /* Show 2 cards per row */
+    }
+   
+    .car-image {
+        height: 160px; /* Reduce image size on tablets */
+    }
+}
+ 
+/* Small Tablets & Large Phones (600px - 767px) */
+@media (max-width: 767px) {
+    .car-list {
+        grid-template-columns: repeat(1, 1fr); /* Show 1 card per row */
+    }
+ 
+    .car-list-container {
+        padding: 20px;
+    }
+ 
+    .car-list-header {
+        padding: 0 5%;
+    }
+ 
+    .car-image {
+        height: 140px; /* Smaller images for mobile */
+    }
+ 
+    .btn-popular,
+    .btn-view-all {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+ 
+    .btn-rent {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
+ 
+/* Extra Small Devices (Below 600px) */
+@media (max-width: 600px) {
+    .car-image {
+        height: 130px;
+    }
+}

@@ -1,0 +1,263 @@
+/* General Styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+}
+
+/* Login Wrapper */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+/* Login Container */
+.login-container {
+    display: flex;
+    width: 80%;
+    max-width: 900px;
+    box-shadow: 0px 4px 10px rgb(0, 0, 0);
+    border-radius: 20px;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* Left Section (Image) */
+.login-left {
+    width: 50%;
+    background-color: #5c999e !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.car-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    animation: carMove 1s ease-out;
+}
+
+/* Right Section (Form) */
+.login-right {
+    width: 50%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-logo {
+    width: 200px;
+    margin-bottom: 20px;
+}
+
+/* Login Box */
+.login-box {
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+}
+
+/* Title */
+.login-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Error Text */
+.error-text {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* Input Fields */
+.input-group {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+/* Password Group */
+.password-group {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+}
+
+.toggle-password:hover {
+    color: #007bff;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    text-align: left;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.checkbox-group input {
+    margin-right: 5px;
+}
+
+/* Terms Link */
+.terms-link {
+    color: #007bff;
+    cursor: pointer;
+}
+
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+/* Forgot Password */
+.forgot-password {
+    text-align: right;
+    font-size: 14px;
+    margin-bottom: 15px;
+    color: #007bff;
+    cursor: pointer;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Continue Button */
+.continue-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.continue-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Toggle Login/Signup */
+.toggle-text {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.toggle-link {
+    color: #007bff;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.toggle-link:hover {
+    text-decoration: underline;
+}
+
+/* OR Separator */
+.or-text {
+    font-size: 14px;
+    color: #999;
+    margin: 15px 0;
+}
+
+/* Social Login Icons */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.social-icon {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.social-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Skip Button */
+.skip-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    background-color: white;
+    color: #007bff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.skip-btn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Car Image Animation */
+@keyframes carMove {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        width: 90%;
+    }
+
+    .login-left {
+        width: 100%;
+        height: 200px;
+    }
+
+    .login-right {
+        width: 100%;
+        padding: 30px;
+    }
+
+    .login-box {
+        max-width: 100%;
+    }
+}
