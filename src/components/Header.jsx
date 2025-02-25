@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSearch, FaSlidersH, FaHeart, FaBell, FaCog } from "react-icons/fa";
-import "./Header.css"; // Import Header CSS
+import "../styles/Header.css"; 
 import profilePic from "../assets/profile.jpg";
 import logo from "../assets/LOGO.png";
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaExchangeAlt } from "react-icons/fa";
-import "./LocationSelector.css";
+import "../styles/LocationSelector.css";
 
 const LocationSelector = () => {
   const [isPickup, setIsPickup] = useState(true);

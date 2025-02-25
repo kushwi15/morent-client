@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import "./ForgotPassword.css";
+import "../styles/ForgotPassword.css";
 import logo from "../assets/LOGO.png";
 
 const ForgotPassword = () => {

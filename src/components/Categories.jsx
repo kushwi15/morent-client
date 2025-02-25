@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Categories.css";
+import "../styles/Categories.css";
 import CarList from "../components/CarList";
 import Header from "../components/Header";
 

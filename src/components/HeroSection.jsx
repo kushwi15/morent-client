@@ -1,5 +1,5 @@
 import "react";
-import "./HeroSection.css";
+import "../styles/HeroSection.css";
 import carImage1 from "../assets/car1.png"; // Image for first card
 
 const HeroSection = () => {

@@ -4,7 +4,7 @@ import { getCars } from "../api/carService.js";
 import { FaHeart, FaGasPump, FaUserFriends } from "react-icons/fa";
 import { GiCarWheel } from "react-icons/gi";
 import carImage1 from "../assets/car1.png"; // Default car image
-import "./CarList.css";
+import "../styles/CarList.css";
 
 const CarList = ({ isCategoriesPage = false }) => {
   const [cars, setCars] = useState([]);
