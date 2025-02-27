@@ -1,26 +1,23 @@
-/* General Layout */
+/* Filter.css */
 .categories-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  height: 80vh;
 }
 
-/* Main Layout (Sidebar + Content) */
 .categories-layout {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  background-color: #f8f9fa;
 }
 
-/* Sidebar - Fixed Below Header */
 .sidebar {
   width: 220px;
   background: #fff;
   padding: 12px;
   border-right: 1px solid #ddd;
   position: fixed;
-  top: 60px; /* Adjust based on header height */
+  top: 60px;
   bottom: 0;
   left: 0;
   overflow-y: auto;
@@ -30,11 +27,13 @@
 .sidebar h3 {
   font-size: 15px;
   margin-bottom: 8px;
+  color: black;
 }
 
 .sidebar ul {
   list-style: none;
   padding: 0;
+  color: black;
 }
 
 .sidebar li {
@@ -44,9 +43,13 @@
   margin-bottom: 6px;
   cursor: pointer;
   font-size: 13px;
+  color: black;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-.sidebar input[type="checkbox"] {
+.sidebar input[type="checkbox"],
+.sidebar input[type="radio"] {
   transform: scale(0.9);
 }
 
@@ -55,8 +58,8 @@
   height: 3px;
 }
 
-/* Apply Filter Button */
-.btn-apply {
+.btn-apply,
+.btn-clear {
   width: 100%;
   padding: 8px;
   font-size: 13px;
@@ -68,32 +71,43 @@
   margin-top: 10px;
 }
 
-.btn-apply:hover {
+.btn-apply:hover,
+.btn-clear:hover {
   background: #2563eb;
 }
 
-/* Main Content */
-.main-content {
-  flex: 1;
-  padding: 12px;
-  margin-left: 220px; /* Match sidebar width */
-  overflow-y: auto;
-  height: calc(100vh - 60px); /* Adjust based on header */
+.btn-clear {
+  background-color: grey;
 }
 
-/* Car List Container */
+.btn-clear:hover {
+  background-color: darkgrey;
+}
+
+.main-content {
+  flex: 1;
+  padding: 15px;
+  margin-left: 220px;
+  overflow-y: auto;
+  height: calc(100vh - 60px);
+}
+
+.carlist-location-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .car-list-container {
   flex: 1;
   overflow-y: auto;
 }
 
-/* Buttons */
 .btn-back,
 .btn-show-less {
   width: 150px;
   padding: 8px;
   font-size: 13px;
-  background: #f59e0b; /* Yellow */
+  background: #0b42f5;
   color: white;
   border: none;
   border-radius: 5px;
@@ -103,10 +117,9 @@
 
 .btn-back:hover,
 .btn-show-less:hover {
-  background: #d97706;
+  background: #5096fe;
 }
 
-/* Show More Button */
 .show-more-container {
   text-align: center;
   margin: 15px 0;
@@ -127,7 +140,23 @@
   background: #2563eb;
 }
 
-/* Responsive Design */
+/* Price specific style */
+.sidebar p {
+  color: black;
+}
+
+.sidebar input[type="range"]::-webkit-slider-thumb {
+  background-color: black;
+}
+
+.sidebar input[type="range"]::-moz-range-thumb {
+  background-color: black;
+}
+
+.sidebar input[type="range"]::-ms-thumb {
+  background-color: black;
+}
+
 @media (max-width: 1024px) {
   .sidebar {
     width: 180px;
@@ -135,6 +164,10 @@
 
   .main-content {
     margin-left: 180px;
+  }
+
+  .categories-page {
+    height: auto;
   }
 }
 
@@ -149,11 +182,21 @@
     border-right: none;
     border-bottom: 1px solid #ddd;
     height: auto;
+    padding: 8px;
   }
 
   .main-content {
     margin-left: 0;
     height: auto;
+  }
+
+  .categories-page {
+    height: auto;
+  }
+
+  .sidebar li {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
@@ -164,7 +207,29 @@
 
   .btn-apply,
   .btn-back,
-  .btn-show-more {
+  .btn-show-more,
+  .btn-clear {
     width: 100%;
   }
+
+  .categories-page {
+    height: auto;
+  }
+}
+
+/* Additional Styles for Show Less Button */
+.btn-show-less {
+  width: 150px;
+  padding: 8px;
+  font-size: 13px;
+  background: #3b82f6; /* Or any other suitable color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px; /* Add some space between the buttons */
+}
+
+.btn-show-less:hover {
+  background: #2563eb;
 }

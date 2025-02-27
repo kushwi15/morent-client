@@ -1,3 +1,5 @@
+// CarList.js
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCars } from "../api/carService.js";
@@ -6,24 +8,42 @@ import { GiCarWheel } from "react-icons/gi";
 import carImage1 from "../assets/car1.png"; // Default car image
 import "../styles/CarList.css";
 
-const CarList = ({ isCategoriesPage = false }) => {
+const CarList = ({ isCategoriesPage = false, filters = {}, showMore = 8 }) => {
   const [cars, setCars] = useState([]);
+  const [filteredCars, setFilteredCars] = useState([]);
   const [likedCars, setLikedCars] = useState({});
-  const [showAll, setShowAll] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCars = async () => {
       try {
         const carData = await getCars();
-        setCars(carData.slice(0, 16));
+        setCars(carData);
       } catch (error) {
         console.error("Error fetching car data:", error);
-        setCars([]); // Prevent crashes by setting an empty array
+        setCars([]);
       }
     };
     fetchCars();
   }, []);
+
+  useEffect(() => {
+    let result = cars;
+
+    if (filters.type) {
+      result = result.filter((car) => car.type === filters.type);
+    }
+
+    if (filters.capacity && filters.capacity.length > 0) {
+      result = result.filter((car) => filters.capacity.includes(car.seatingCapacity));
+    }
+
+    if (filters.maxPrice) {
+      result = result.filter((car) => 99 + cars.indexOf(car) <= filters.maxPrice);
+    }
+
+    setFilteredCars(result);
+  }, [cars, filters]);
 
   const toggleLike = (index) => {
     setLikedCars((prev) => ({
@@ -32,9 +52,12 @@ const CarList = ({ isCategoriesPage = false }) => {
     }));
   };
 
+    const handleImageLoad = (event) => {
+        event.target.classList.add('loaded');
+    };
+
   return (
     <div className="car-list-container">
-      {/* Hide buttons when on Categories Page */}
       {!isCategoriesPage && (
         <div className="car-list-header">
           <div className="left-section">
@@ -48,28 +71,27 @@ const CarList = ({ isCategoriesPage = false }) => {
         </div>
       )}
 
-      {/* Car Cards */}
       <div className="car-list">
-        {(showAll ? cars : cars.slice(0, 8)).map((car, index) => (
+        {filteredCars.slice(0, showMore).map((car, index) => (
           <div key={index} className="car-card">
-            {/* Like Icon */}
             <span className={`like-icon ${likedCars[index] ? "liked" : ""}`} onClick={() => toggleLike(index)}>
               <FaHeart />
             </span>
 
-            {/* Car Image */}
-            <img src={car.image || carImage1} alt={car.title} className="car-image" />
+            <img
+              src={car.image || carImage1}
+              alt={car.title}
+              className="car-image"
+              onLoad={handleImageLoad}
+            />
 
-            {/* Car Title */}
             <h5>{car.title}</h5>
 
-            {/* Price & Rent Button */}
             <div className="card-footer">
-              <p className="price">Price: ${99 + index} / day</p>
+              <p className="price">Price: ₹{1000 + cars.indexOf(car)} / day</p>
               <button className="btn-rent">Rent Now</button>
             </div>
 
-            {/* Car Info Icons */}
             <div className="car-info">
               <span className="info-item">
                 <FaGasPump /> {car.fuelCapacity || "90L"}
@@ -83,16 +105,8 @@ const CarList = ({ isCategoriesPage = false }) => {
             </div>
           </div>
         ))}
+        {filteredCars.length === 0 && <p>No cars found.</p>}
       </div>
-
-      {/* Show More / Show Less Button (Hidden in Categories Page) */}
-      {!isCategoriesPage && (
-        <div className="show-more-container">
-          <button className="btn-show-more" onClick={() => setShowAll(!showAll)}>
-            {showAll ? "Show Less" : "Show More"}
-          </button>
-        </div>
-      )}
     </div>
   );
 };

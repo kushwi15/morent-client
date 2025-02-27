@@ -1,14 +1,13 @@
-/* ========================== */
-/*        HEADER STYLES       */
-/* ========================== */
-
+/* ============================
+   Header Styling
+============================ */
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 5%;
   background: white;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   position: fixed;
   width: 100%;
   top: 0;
@@ -17,6 +16,9 @@
   transition: all 0.3s ease-in-out;
 }
 
+/* ============================
+   Left Section (Logo & Search)
+============================ */
 .left-section {
   display: flex;
   align-items: center;
@@ -33,7 +35,9 @@
   transform: scale(1.08);
 }
 
-/* Search Box */
+/* ============================
+   Search Box Styling
+============================ */
 .search-box {
   display: flex;
   align-items: center;
@@ -59,20 +63,17 @@
   padding-left: 35px;
 }
 
-/* Search & Filter Icons */
-.search-icon,
-.filter-icon {
-  color: #666;
-  font-size: 18px;
-}
-
 .search-icon {
   position: absolute;
   left: 15px;
+  font-size: 18px;
+  color: #666;
 }
 
 .filter-icon {
   margin-left: 12px;
+  font-size: 18px;
+  color: #666;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
 }
@@ -81,14 +82,15 @@
   transform: rotate(90deg);
 }
 
-/* Icons Group */
+/* ============================
+   Icons & Notifications
+============================ */
 .icon-group {
   display: flex;
   align-items: center;
   gap: 18px;
 }
 
-/* Icon Buttons */
 .icon-circle {
   display: flex;
   align-items: center;
@@ -109,7 +111,9 @@
   transform: scale(1.1);
 }
 
-/* Notification Dot */
+/* ============================
+   Notification Dot Animation
+============================ */
 .notification {
   position: relative;
 }
@@ -126,35 +130,164 @@
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.6; }
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.6;
+  }
 }
 
-/* Profile Picture */
-.profile-pic {
+/* ============================
+   Profile Dropdown Styling
+============================ */
+.profile-dropdown-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile-pic-container {
   width: 45px;
   height: 45px;
   border-radius: 50%;
+  overflow: hidden;
+}
+
+.profile-pic {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
 }
 
 .profile-pic:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
-/* ========================== */
-/*      RESPONSIVE DESIGN     */
-/* ========================== */
+/* ============================
+   Profile Dropdown Animation
+============================ */
+.profile-dropdown {
+  position: absolute;
+  top: 3rem;
+  right: 0;
+  background: rgba(0, 0, 0, 0.367);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.2);
+  width: 12rem;
+  z-index: 1001;
+}
 
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  color: var(--text-color);
+}
+
+.dropdown-text:hover {
+  background: rgba(0, 0, 0, 0.500);
+}
+
+.dropdown-text {
+color: rgb(255, 253, 253); /* Or any color you want */
+}
+
+.dropdown-icon {
+  padding-left: 3%;
+  margin-right: 1rem;
+  color: rgb(219, 220, 224);
+}
+/* ============================
+   Profile Header
+============================ */
+.profile-header {
+  text-align: center;
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-header img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+}
+
+.profile-header h4 {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ============================
+   Dropdown Items
+============================ */
+.dropdown-item {
+  padding: 12px 20px;
+  font-size: 15px;
+  color: #f4f4f4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out, transform 0.2s;
+  border-radius: 6px;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+.dropdown-icon {
+  font-size: 18px;
+  color: #f4f4f4;
+}
+
+.dropdown-text {
+  font-size: 18px;
+  color: #fff;
+}
+
+/* ============================
+   Logout Button
+============================ */
+.logout-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: red;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s ease-in-out;
+}
+
+.logout-btn:hover {
+  background: darkred;
+}
+
+/* ============================
+   Responsive Design
+============================ */
 @media screen and (max-width: 1024px) {
   .header-container {
     padding: 12px 4%;
   }
+
   .search-box {
     max-width: 400px;
   }
+
   .icon-circle {
     width: 40px;
     height: 40px;
@@ -168,170 +301,21 @@
     align-items: center;
     gap: 12px;
   }
+
   .left-section {
     flex-direction: column;
     align-items: center;
   }
+
   .search-box {
     max-width: 100%;
   }
+
   .icon-group {
     gap: 12px;
   }
-}
 
-/* ========================== */
-/*    PROFILE MODAL STYLES    */
-/* ========================== */
-
-/* Disable background scroll when modal is open */
-body.modal-open {
-  overflow: hidden;
-}
-
-/* Modal Overlay */
-.profile-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-/* Profile Modal */
-.profile-modal {
-  position: fixed;
-  top: 15%;
-  left: 35%;
-  transform: translate(-50%, -50%) scale(0.95);
-  width: 420px;
-  height: 80vh;
-  background: white;
-  border-radius: 12px;
-  padding: 22px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  opacity: 0;
-  overflow-y: auto;
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-  animation: fadeIn 0.3s forwards;
-}
-
-/* Enable scrolling inside modal */
-.profile-content {
-  max-height: 100%;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
-/* Custom Scrollbar */
-.profile-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.profile-content::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
-}
-
-.profile-content::-webkit-scrollbar-track {
-  background: #f7f7f7;
-}
-
-/* Close Button */
-.close-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 20px;
-  cursor: pointer;
-  transition: color 0.2s ease-in-out;
-}
-
-.close-btn:hover {
-  color: #ff4444;
-}
-
-/* Profile Picture Upload */
-.profile-picture {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.profile-picture img {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  margin: auto;
-}
-
-.profile-picture input {
-  display: block;
-  margin: 12px auto;
-  font-size: 14px;
-}
-
-/* Profile Fields */
-.profile-fields div {
-  margin: 12px 0;
-}
-
-.profile-fields label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 6px;
-}
-
-.profile-fields input {
-  width: 100%;
-  padding: 9px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 15px;
-}
-
-.profile-fields input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-/* Documents Upload */
-.document-upload {
-  margin-top: 18px;
-}
-
-.document-upload label {
-  font-weight: bold;
-}
-
-.document-upload img {
-  width: 120px;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.document-upload input {
-  display: block;
-  font-size: 14px;
-}
-
-/* Edit Button */
-.edit-btn {
-  background: #007bff;
-  color: white;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.edit-btn:hover {
-  background: #0056b3;
+  .profile-dropdown {
+    min-width: 200px;
+  }
 }
