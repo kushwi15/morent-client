@@ -1,7 +1,7 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import logo from "../assets/LOGO.png";
 import carImage from "../assets/car1.png";
@@ -23,6 +23,7 @@ const SignupPage = () => {
   });
   const [error, setError] = useState("");
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -31,7 +32,8 @@ const SignupPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -50,7 +52,18 @@ const SignupPage = () => {
       return;
     }
 
-    navigate("/home");
+    try {
+      await axios.post("http://localhost:5000/signup", {
+        name: formData.fullName, // API expects "name"
+        email: formData.emailOrPhone, // Assuming backend expects "email"
+        password: formData.password,
+      });
+
+      alert("Registration successful! Please log in.");
+      navigate("/login");
+    } catch (err) {
+      setError(err.response?.data?.error || "Signup failed. Please try again.");
+    }
   };
 
   const handleLoginRedirect = () => {
@@ -136,9 +149,7 @@ const SignupPage = () => {
                   label={
                     <>
                       I agree to the{" "}
-                      <span className="terms-link">
-                        Terms & Privacy Policy
-                      </span>
+                      <span className="terms-link">Terms & Privacy Policy</span>
                     </>
                   }
                 />

@@ -5,6 +5,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import Home from "../pages/Home";
 import Filter from "../pages/Filter";
 import 'bootstrap/dist/css/bootstrap.min.css';
+
  
 const AppRouter = () => {
   return (

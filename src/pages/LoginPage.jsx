@@ -1,14 +1,14 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import logo from "../assets/LOGO.png"; // Adjust path as needed
-import carImage from "../assets/car1.png"; // Adjust path as needed
-import googleIcon from "../assets/google.png"; // Adjust path as needed
-import facebookIcon from "../assets/facebook.png"; // Adjust path as needed
-import appleIcon from "../assets/apple.png"; // Adjust path as needed
-import "../styles/Login.css"; // Adjust path as needed
+import logo from "../assets/LOGO.png";
+import carImage from "../assets/car1.png";
+import googleIcon from "../assets/google.png";
+import facebookIcon from "../assets/facebook.png";
+import appleIcon from "../assets/apple.png";
+import "../styles/Login.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -19,15 +19,16 @@ const LoginPage = () => {
   });
   const [error, setError] = useState("");
 
+  // Handle input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e) => {
+  // Handle login submit
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -36,16 +37,21 @@ const LoginPage = () => {
       return;
     }
 
-    navigate("/home");
+    try {
+      const res = await axios.post("http://localhost:5000/login", {
+        email: formData.emailOrPhone, // Assuming backend expects "email"
+        password: formData.password,
+      });
+
+      localStorage.setItem("token", res.data.token);
+      navigate("/home"); // Redirect after successful login
+    } catch (err) {
+      setError("Invalid credentials. Please try again.");
+    }
   };
 
-  const handleSkip = () => {
-    navigate("/home");
-  };
-
-  const handleSignupRedirect = () => {
-    navigate("/signup");
-  };
+  const handleSkip = () => navigate("/home");
+  const handleSignupRedirect = () => navigate("/signup");
 
   return (
     <div className="login-wrapper">
@@ -61,7 +67,7 @@ const LoginPage = () => {
           <div className="login-box">
             <h3 className="login-title">Login</h3>
             {error && <p className="error-text">{error}</p>}
-            
+
             {/* Login Form */}
             <Form onSubmit={handleSubmit}>
               <Form.Group className="input-group">
@@ -74,6 +80,7 @@ const LoginPage = () => {
                   required
                 />
               </Form.Group>
+
               <Form.Group className="input-group password-group">
                 <Form.Control
                   type={showPassword ? "text" : "password"}
@@ -90,14 +97,14 @@ const LoginPage = () => {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </Form.Group>
-              
+
               <p
                 className="forgot-password"
                 onClick={() => navigate("/forgot-password")}
               >
                 Forgot Password?
               </p>
-              
+
               <Button className="continue-btn" type="submit">
                 Continue
               </Button>

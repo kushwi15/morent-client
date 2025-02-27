@@ -1,0 +1,140 @@
+/* Profile Floating Modal */
+.profile-modal {
+    position: fixed;
+    top: 15%;
+    left: 40%;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: 420px;
+    background: white;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    animation: fadeIn 0.3s forwards;
+  }
+  
+  /* Fade In Animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  
+  .profile-content {
+    position: relative;
+  }
+  
+  .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .close-btn:hover {
+    color: #ff4444;
+  }
+  
+  /* Profile Picture Upload */
+  .profile-picture {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .profile-picture img {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: auto;
+  }
+  
+  .profile-picture input {
+    display: block;
+    margin: 12px auto;
+    font-size: 14px;
+  }
+  
+  /* Profile Fields */
+  .profile-fields div {
+    margin: 12px 0;
+  }
+  
+  .profile-fields label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  
+  .profile-fields input {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.2s ease-in-out;
+  }
+  
+  .profile-fields input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  /* Documents Upload */
+  .document-upload {
+    margin-top: 18px;
+  }
+  
+  .document-upload div {
+    margin: 12px 0;
+  }
+  
+  .document-upload label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+  }
+  
+  .document-upload img {
+    width: 120px;
+    height: auto;
+    display: block;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .document-upload input {
+    display: block;
+    font-size: 14px;
+  }
+  
+  /* Responsive Design */
+  @media screen and (max-width: 768px) {
+    .profile-modal {
+      width: 90%;
+      left: 50%;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .profile-modal {
+      width: 95%;
+      left: 50%;
+    }
+  
+    .profile-picture img {
+      width: 90px;
+      height: 90px;
+    }
+  
+    .document-upload img {
+      width: 100px;
+    }
+  }
+  

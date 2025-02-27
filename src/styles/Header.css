@@ -1,11 +1,14 @@
-/* Header Container */
+/* ========================== */
+/*        HEADER STYLES       */
+/* ========================== */
+
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 5%;
+  padding: 12px 5%;
   background: white;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
   position: fixed;
   width: 100%;
   top: 0;
@@ -14,47 +17,37 @@
   transition: all 0.3s ease-in-out;
 }
 
-/* Left Section (Logo + Search) */
 .left-section {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 18px;
   flex: 1;
 }
 
-/* Logo */
 .logo {
-  width: 120px;
-  height: auto;
+  width: 130px;
   transition: transform 0.3s ease-in-out;
 }
 
 .logo:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 /* Search Box */
 .search-box {
   display: flex;
   align-items: center;
-  background: #f4f4f4;
+  background: #f7f7f7;
   border-radius: 30px;
-  padding: 8px 15px;
+  padding: 10px 18px;
   width: 100%;
   max-width: 500px;
   position: relative;
-  transition: all 0.3s ease-in-out;
+  transition: background 0.3s ease-in-out;
 }
 
 .search-box:hover {
-  background: #e0e0e0;
-}
-
-.search-icon {
-  position: absolute;
-  left: 15px;
-  color: #555;
-  font-size: 18px;
+  background: #e8f0fe;
 }
 
 .search-input {
@@ -63,15 +56,25 @@
   outline: none;
   flex: 1;
   font-size: 16px;
-  padding-left: 40px;
+  padding-left: 35px;
+}
+
+/* Search & Filter Icons */
+.search-icon,
+.filter-icon {
+  color: #666;
+  font-size: 18px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
 }
 
 .filter-icon {
-  color: #555;
-  font-size: 18px;
-  margin-left: 10px;
+  margin-left: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.3s ease-in-out;
 }
 
 .filter-icon:hover {
@@ -82,7 +85,7 @@
 .icon-group {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 18px;
 }
 
 /* Icon Buttons */
@@ -90,20 +93,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   background: #f4f4f4;
   cursor: pointer;
   font-size: 16px;
   color: #555;
-  position: relative;
   transition: all 0.3s ease-in-out;
 }
 
 .icon-circle:hover {
   background: #dceefb;
   color: #007bff;
+  transform: scale(1.1);
 }
 
 /* Notification Dot */
@@ -115,16 +118,22 @@
   position: absolute;
   top: 6px;
   right: 6px;
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   background: red;
   border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.6; }
 }
 
 /* Profile Picture */
 .profile-pic {
-  width: 42px;
-  height: 42px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
@@ -132,22 +141,23 @@
 }
 
 .profile-pic:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
-/* Responsive Design */
+/* ========================== */
+/*      RESPONSIVE DESIGN     */
+/* ========================== */
+
 @media screen and (max-width: 1024px) {
   .header-container {
     padding: 12px 4%;
   }
-
   .search-box {
     max-width: 400px;
   }
-
   .icon-circle {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     font-size: 14px;
   }
 }
@@ -156,19 +166,172 @@
   .header-container {
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
-
   .left-section {
     flex-direction: column;
     align-items: center;
   }
-
   .search-box {
     max-width: 100%;
   }
-
   .icon-group {
-    gap: 10px;
+    gap: 12px;
   }
+}
+
+/* ========================== */
+/*    PROFILE MODAL STYLES    */
+/* ========================== */
+
+/* Disable background scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Modal Overlay */
+.profile-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Profile Modal */
+.profile-modal {
+  position: fixed;
+  top: 15%;
+  left: 35%;
+  transform: translate(-50%, -50%) scale(0.95);
+  width: 420px;
+  height: 80vh;
+  background: white;
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  opacity: 0;
+  overflow-y: auto;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  animation: fadeIn 0.3s forwards;
+}
+
+/* Enable scrolling inside modal */
+.profile-content {
+  max-height: 100%;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Custom Scrollbar */
+.profile-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profile-content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.profile-content::-webkit-scrollbar-track {
+  background: #f7f7f7;
+}
+
+/* Close Button */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+.close-btn:hover {
+  color: #ff4444;
+}
+
+/* Profile Picture Upload */
+.profile-picture {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.profile-picture img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: auto;
+}
+
+.profile-picture input {
+  display: block;
+  margin: 12px auto;
+  font-size: 14px;
+}
+
+/* Profile Fields */
+.profile-fields div {
+  margin: 12px 0;
+}
+
+.profile-fields label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.profile-fields input {
+  width: 100%;
+  padding: 9px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.profile-fields input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Documents Upload */
+.document-upload {
+  margin-top: 18px;
+}
+
+.document-upload label {
+  font-weight: bold;
+}
+
+.document-upload img {
+  width: 120px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.document-upload input {
+  display: block;
+  font-size: 14px;
+}
+
+/* Edit Button */
+.edit-btn {
+  background: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #0056b3;
 }
