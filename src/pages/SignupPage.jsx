@@ -1,4 +1,6 @@
-import { useState } from "react";
+/* eslint-disable no-unused-vars */
+
+import React, { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -9,8 +11,13 @@ import googleIcon from "../assets/google.png";
 import facebookIcon from "../assets/facebook.png";
 import appleIcon from "../assets/apple.png";
 import "../styles/Login.css";
+import { useAuth0 } from "@auth0/auth0-react";
+
+
 
 const SignupPage = () => {
+  const { loginWithRedirect } = useAuth0(); // Auth0 login function
+
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -22,8 +29,8 @@ const SignupPage = () => {
     agreeTerms: false,
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -32,7 +39,6 @@ const SignupPage = () => {
     });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -52,10 +58,32 @@ const SignupPage = () => {
       return;
     }
 
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // const phoneRegex = /^\d{10}$/; // Assumes a 10-digit phone number
+
+    // if (!emailRegex.test(formData.emailOrPhone)) {
+    //   setError("Invalid email format.");
+    //   return;
+    // }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10}$/;
+
+    let requestData = { fullName: formData.fullName, password: formData.password };
+
+    if (emailRegex.test(formData.emailOrPhone)) {
+      requestData.email = formData.emailOrPhone;
+    } else if (phoneRegex.test(formData.emailOrPhone)) {
+      requestData.phoneNumber = formData.emailOrPhone;
+    } else {
+      setError("Please enter a valid email or phone number.");
+      return;
+    }
+    setLoading(true);
+
     try {
       await axios.post("http://localhost:5000/signup", {
-        name: formData.fullName, // API expects "name"
-        email: formData.emailOrPhone, // Assuming backend expects "email"
+        fullName: formData.fullName,
+        email: formData.emailOrPhone, // Assuming backend expects 'email' or 'phoneNumber'
         password: formData.password,
       });
 
@@ -63,6 +91,8 @@ const SignupPage = () => {
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.error || "Signup failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,19 +103,15 @@ const SignupPage = () => {
   return (
     <div className="login-wrapper">
       <div className="login-container">
-        {/* Left Section */}
         <div className="login-left">
           <img src={carImage} alt="Car Rental" className="car-image" />
         </div>
-
-        {/* Right Section */}
         <div className="login-right">
           <img src={logo} alt="Car Rental Logo" className="login-logo" />
           <div className="login-box">
             <h3 className="login-title">Sign Up</h3>
             {error && <p className="error-text">{error}</p>}
 
-            {/* Signup Form */}
             <Form onSubmit={handleSubmit}>
               <Form.Group className="input-group">
                 <Form.Control
@@ -148,33 +174,28 @@ const SignupPage = () => {
                   onChange={handleChange}
                   label={
                     <>
-                      I agree to the{" "}
-                      <span className="terms-link">Terms & Privacy Policy</span>
+                      I agree to the <span className="terms-link">Terms & Privacy Policy</span>
                     </>
                   }
                 />
               </Form.Group>
 
-              <Button className="continue-btn" type="submit">
-                Create an account
+              <Button className="continue-btn" type="submit" disabled={loading}>
+                {loading ? "Signing up..." : "Create an account"}
               </Button>
             </Form>
 
-            {/* Login Redirect */}
             <p className="toggle-text">
-              Already have an account?{" "}
-              <span className="toggle-link" onClick={handleLoginRedirect}>
-                Login
-              </span>
+              Already have an account? <span className="toggle-link" onClick={handleLoginRedirect}>Login</span>
             </p>
 
             <p className="or-text">or</p>
 
-            {/* Social Signup Options */}
-            <div className="social-icons">
-              <img src={googleIcon} alt="Google" className="social-icon" />
-              <img src={facebookIcon} alt="Facebook" className="social-icon" />
-              <img src={appleIcon} alt="Apple" className="social-icon" />
+             {/* Social Signup Options */}
+             <div className="social-icons">
+              <img src={googleIcon} alt="Google" className="social-icon" onClick={() => loginWithRedirect()} />
+              <img src={facebookIcon} alt="Facebook" className="social-icon" onClick={() => loginWithRedirect()}/>
+              <img src={appleIcon} alt="Apple" className="social-icon"onClick={() => loginWithRedirect()} />
             </div>
           </div>
         </div>
@@ -184,3 +205,4 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
+

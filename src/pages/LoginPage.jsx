@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -9,8 +10,11 @@ import googleIcon from "../assets/google.png";
 import facebookIcon from "../assets/facebook.png";
 import appleIcon from "../assets/apple.png";
 import "../styles/Login.css";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const LoginPage = () => {
+    const { loginWithRedirect } = useAuth0(); // Auth0 login function
+  
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,7 +23,6 @@ const LoginPage = () => {
   });
   const [error, setError] = useState("");
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -27,48 +30,68 @@ const LoginPage = () => {
     });
   };
 
-  // Handle login submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!formData.emailOrPhone || !formData.password) {
-      setError("Please fill in all fields.");
+    // if (!formData.emailOrPhone || !formData.password) {
+    //   setError("Please fill in all fields.");
+    //   return;
+    // }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10}$/;
+
+    let requestData = { fullName: formData.fullName, password: formData.password };
+
+    if (emailRegex.test(formData.emailOrPhone)) {
+      requestData.email = formData.emailOrPhone;
+    } else if (phoneRegex.test(formData.emailOrPhone)) {
+      requestData.phoneNumber = formData.emailOrPhone;
+    } else {
+      setError("Please enter a valid email or phone number.");
       return;
     }
 
     try {
       const res = await axios.post("http://localhost:5000/login", {
-        email: formData.emailOrPhone, // Assuming backend expects "email"
+        email: formData.emailOrPhone,
         password: formData.password,
       });
 
       localStorage.setItem("token", res.data.token);
-      navigate("/home"); // Redirect after successful login
+      navigate("/home");
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      if (err.response) {
+        if (err.response.status === 401) {
+          setError("Incorrect email or password.");
+        } else if (err.response.status === 404) {
+          setError("User not found.");
+        } else {
+          setError("An error occurred. Please try again.");
+        }
+      } else {
+        setError("Network error. Please try again.");
+      }
     }
   };
 
   const handleSkip = () => navigate("/home");
   const handleSignupRedirect = () => navigate("/signup");
+  const handleForgotPassword = () => navigate("/forgot-password");
 
   return (
     <div className="login-wrapper">
       <div className="login-container">
-        {/* Left Section */}
         <div className="login-left">
           <img src={carImage} alt="Car Rental" className="car-image" />
         </div>
 
-        {/* Right Section */}
         <div className="login-right">
           <img src={logo} alt="Car Rental Logo" className="login-logo" />
           <div className="login-box">
             <h3 className="login-title">Login</h3>
             {error && <p className="error-text">{error}</p>}
 
-            {/* Login Form */}
             <Form onSubmit={handleSubmit}>
               <Form.Group className="input-group">
                 <Form.Control
@@ -100,7 +123,7 @@ const LoginPage = () => {
 
               <p
                 className="forgot-password"
-                onClick={() => navigate("/forgot-password")}
+                onClick={handleForgotPassword}
               >
                 Forgot Password?
               </p>
@@ -110,7 +133,6 @@ const LoginPage = () => {
               </Button>
             </Form>
 
-            {/* Signup Redirect */}
             <p className="toggle-text">
               Create an account{" "}
               <span className="toggle-link" onClick={handleSignupRedirect}>
@@ -120,22 +142,23 @@ const LoginPage = () => {
 
             <p className="or-text">or</p>
 
-            {/* Social Login Options */}
-            <div className="social-icons">
-              <img src={googleIcon} alt="Google" className="social-icon" />
-              <img src={facebookIcon} alt="Facebook" className="social-icon" />
-              <img src={appleIcon} alt="Apple" className="social-icon" />
-            </div>
+           {/* Social Signup Options */}
+                        <div className="social-icons">
+                         <img src={googleIcon} alt="Google" className="social-icon" onClick={() => loginWithRedirect()} />
+                         <img src={facebookIcon} alt="Facebook" className="social-icon" onClick={() => loginWithRedirect()}/>
+                         <img src={appleIcon} alt="Apple" className="social-icon"onClick={() => loginWithRedirect()} />
+                       </div>
 
             {/* Guest Login */}
             <button onClick={handleSkip} className="skip-btn">
               Sign up as guest
             </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             );
+           };
+           
 
 export default LoginPage;

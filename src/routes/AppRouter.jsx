@@ -11,7 +11,7 @@ const AppRouter = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} /> {/* Redirect "/" to "/login" */}
+        <Route path="/" element={<Navigate to="/login" />} /> 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "../styles/ForgotPassword.css";
@@ -10,6 +10,7 @@ const ForgotPassword = () => {
   const [method, setMethod] = useState("email");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("+91"); // Default to India
   const [otp, setOtp] = useState("");
   const [generatedOtp, setGeneratedOtp] = useState(null);
   const [otpVerified, setOtpVerified] = useState(false);
@@ -18,11 +19,51 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  // Country codes (Add more as needed)
+  const countryCodes = [
+    { code: "+91", country: "India" },
+    { code: "+1", country: "United States" },
+    { code: "+44", country: "United Kingdom" },
+    { code: "+86", country: "China" },
+    { code: "+81", country: "Japan" },
+    // Add more countries here
+  ];
+
+    // Clear input fields and reset state when the method changes
+    useEffect(() => {
+        setEmail("");
+        setPhone("");
+        setError(""); // Clear any previous errors
+        setOtp("");
+        setGeneratedOtp(null);
+        setOtpVerified(false);
+        setNewPassword("");
+        setConfirmPassword("");
+        setMessage("");
+    }, [method]);
+
   // Send OTP (simulated)
   const handleSendOTP = () => {
-    if (method === "phone" && !phone) {
-      setError("Please enter your phone number.");
-      return;
+    if (method === "phone") {
+      if (!phone) {
+        setError("Please enter your phone number.");
+        return;
+      }
+      if (!/^\d+$/.test(phone)) {
+        setError("Please enter a valid phone number.");
+        return;
+      }
+    }
+
+    if (method === "email") {
+      if (!email) {
+        setError("Please enter your email address.");
+        return;
+      }
+      if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email)) {
+        setError("Please enter a valid email address.");
+        return;
+      }
     }
     const newOtp = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit OTP
     setGeneratedOtp(newOtp);
@@ -72,7 +113,11 @@ const ForgotPassword = () => {
             <>
               <Form.Group className="method-group">
                 <Form.Label>Reset via:</Form.Label>
-                <Form.Control as="select" value={method} onChange={(e) => setMethod(e.target.value)}>
+                <Form.Control
+                  as="select"
+                  value={method}
+                  onChange={(e) => setMethod(e.target.value)}
+                >
                   <option value="email">Email</option>
                   <option value="phone">Phone Number</option>
                 </Form.Control>
@@ -91,12 +136,27 @@ const ForgotPassword = () => {
 
               {method === "phone" && (
                 <Form.Group className="input-group">
-                  <Form.Control
-                    type="tel"
-                    placeholder="Enter your phone number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
+                  <div className="phone-input-container">
+                    <Form.Control
+                      as="select"
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="country-code-select"
+                    >
+                      {countryCodes.map((country) => (
+                        <option key={country.code} value={country.code}>
+                          {country.code} ({country.country})
+                        </option>
+                      ))}
+                    </Form.Control>
+                    <Form.Control
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="phone-number-input"
+                    />
+                  </div>
                 </Form.Group>
               )}
 
@@ -146,7 +206,7 @@ const ForgotPassword = () => {
             </>
           )}
 
-          <p className="back-to-login" onClick={() => navigate("/")}>
+          <p className="back-to-login" onClick={() => navigate("/login")}>
             Back to Login
           </p>
         </div>
