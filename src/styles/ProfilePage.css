@@ -1,140 +1,275 @@
-/* Profile Floating Modal */
-.profile-modal {
+  /* ======================== */
+  /* Global Styles */
+  /* ======================== */
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif; 
+    background: #f8f9fa;
+  }
+
+  /* ======================== */
+  /* Profile Modal Overlay */
+  /* ======================== */
+
+  .profile-modal-overlay {
     position: fixed;
-    top: 15%;
-    left: 40%;
-    transform: translate(-50%, -50%) scale(0.95);
-    width: 420px;
-    background: white;
-    border-radius: 12px;
-    padding: 22px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 1000;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-    animation: fadeIn 0.3s forwards;
+    background: rgba(255, 255, 255, 0.95);
   }
-  
-  /* Fade In Animation */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
-    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+  /* ======================== */
+  /* Profile Modal */
+  /* ======================== */
+
+  .profile-modal {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border-radius: 16px;
+    padding: 50px;
+    overflow-y: auto;
   }
-  
-  .profile-content {
-    position: relative;
+
+  /* ======================== */
+  /* Header Section */
+  /* ======================== */
+
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
   }
-  
-  .close-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    font-size: 20px;
+
+  .profile-header h2 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #222;
+    letter-spacing: 0.5px;
+  }
+
+  /* ======================== */
+  /* Back Button */
+  /* ======================== */
+
+  .back-btn {
+    font-size: 24px;
     cursor: pointer;
-    transition: color 0.2s ease-in-out;
+    color: #444;
+    transition: 0.2s;
   }
-  
-  .close-btn:hover {
-    color: #ff4444;
+
+  .back-btn:hover {
+    color: #007bff;
+    transform: scale(1.1);
   }
-  
+
+  /* ======================== */
+  /* Edit Button */
+  /* ======================== */
+
+  .edit-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+
+  .edit-btn:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+  }
+
+  /* ======================== */
   /* Profile Picture Upload */
+  /* ======================== */
+
   .profile-picture {
-    text-align: center;
-    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
   }
-  
+
   .profile-picture img {
-    width: 110px;
-    height: 110px;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
     object-fit: cover;
-    display: block;
-    margin: auto;
+    border: 6px solid #ddd;
   }
-  
-  .profile-picture input {
-    display: block;
-    margin: 12px auto;
-    font-size: 14px;
+
+  /* File Upload Button */
+  .file-upload {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #007bff;
+    font-weight: 500;
   }
-  
-  /* Profile Fields */
+
+  .file-upload input[type="file"] {
+    display: none;
+  }
+
+  /* ======================== */
+  /* Profile Form Fields */
+  /* ======================== */
+
+  .profile-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+  }
+
   .profile-fields div {
-    margin: 12px 0;
+    display: flex;
+    flex-direction: column;
   }
-  
+
+  /* Labels */
   .profile-fields label {
-    display: block;
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: 6px;
-    color: #333;
+    color: black !important;  /* Ensure all labels are black */
+    font-size: 17px;
+    letter-spacing: 0.4px;
   }
-  
+
+  /* Input Fields */
   .profile-fields input {
     width: 100%;
-    padding: 9px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 15px;
-    transition: border-color 0.2s ease-in-out;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: 0.2s;
+    font-weight: 500;
+    color: black !important;  /* Ensure input text is black */
   }
-  
+
   .profile-fields input:focus {
-    border-color: #007bff;
     outline: none;
+    border-color: #007bff;
+    box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.3);
   }
-  
-  /* Documents Upload */
+
+  .profile-fields input:disabled {
+    background-color: #f0f0f0;
+    color: #777;
+  }
+
+  /* ======================== */
+  /* Document Upload Section */
+  /* ======================== */
+
+  h3 {
+    margin-top: 30px;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 24px;
+  }
+
   .document-upload {
-    margin-top: 18px;
+    margin-top: 35px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 25px;
   }
-  
-  .document-upload div {
-    margin: 12px 0;
+
+  /* Document Container */
+  .document-section {
+    background: #fafafa;
+    padding: 22px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+    transition: 0.3s;
   }
-  
-  .document-upload label {
-    font-weight: bold;
+
+  /* Uploaded Document Image */
+  .document-section img {
+    max-width: 100%;
+    max-height: 190px;
+    object-fit: contain;
+    border-radius: 12px;
+  }
+
+  /* Document Upload Input */
+  .document-section input {
     display: block;
-    margin-bottom: 6px;
+    margin-top: 10px;
+    color: black !important; /* Ensure uploaded file text is black */
   }
-  
-  .document-upload img {
-    width: 120px;
-    height: auto;
-    display: block;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  /* Document Labels */
+  .document-section label {
+    color: black !important; /* Ensure document labels are black */
   }
-  
-  .document-upload input {
-    display: block;
-    font-size: 14px;
-  }
-  
+
+  /* ======================== */
   /* Responsive Design */
-  @media screen and (max-width: 768px) {
-    .profile-modal {
-      width: 90%;
-      left: 50%;
-    }
-  }
-  
-  @media screen and (max-width: 480px) {
+  /* ======================== */
+
+  @media screen and (max-width: 1024px) {
     .profile-modal {
       width: 95%;
-      left: 50%;
+      height: 95vh;
     }
-  
-    .profile-picture img {
-      width: 90px;
-      height: 90px;
+
+    .profile-fields {
+      grid-template-columns: 1fr 1fr;
     }
-  
-    .document-upload img {
-      width: 100px;
+
+    .document-upload {
+      grid-template-columns: 1fr 1fr;
     }
   }
-  
+
+  @media screen and (max-width: 768px) {
+    .profile-modal {
+      width: 100%;
+      height: 100vh;
+      border-radius: 0;
+      padding: 30px;
+    }
+
+    .profile-fields {
+      grid-template-columns: 1fr;
+    }
+
+    .document-upload {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-header h2 {
+      font-size: 26px;
+    }
+
+    .edit-btn {
+      font-size: 16px;
+      padding: 12px 18px;
+    }
+  }

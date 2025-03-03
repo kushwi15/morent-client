@@ -5,6 +5,7 @@ import "../styles/Header.css";
 import profilePic from "../assets/profile.jpg";
 import logo from "../assets/LOGO.png";
 
+ 
 const Header = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -50,7 +51,9 @@ const Header = () => {
           </div>
           {showDropdown && (
             <div className="profile-dropdown">
-              <div className="dropdown-item"><FaUser className="dropdown-icon" /><span className="dropdown-text"> My Profile</span></div>
+                  <div className="dropdown-item" onClick={() => navigate("/profile")} style={{ cursor: "pointer" }}>
+      <FaUser className="dropdown-icon" />
+      <span className="dropdown-text"> My Profile</span></div>
               <div className="dropdown-item"><FaFileAlt className="dropdown-icon" /><span className="dropdown-text"> Documents</span></div>
               <div className="dropdown-item"><FaBook className="dropdown-icon" /><span className="dropdown-text"> Bookings</span></div>
               <div className="dropdown-item"><FaGift className="dropdown-icon" /><span className="dropdown-text"> Rewards</span></div>
