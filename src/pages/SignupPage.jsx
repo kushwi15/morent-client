@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-
 import React, { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -13,11 +12,8 @@ import appleIcon from "../assets/apple.png";
 import "../styles/Login.css";
 import { useAuth0 } from "@auth0/auth0-react";
 
-
-
 const SignupPage = () => {
-  const { loginWithRedirect } = useAuth0(); // Auth0 login function
-
+  const { loginWithRedirect } = useAuth0();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -57,17 +53,9 @@ const SignupPage = () => {
       setError("You must agree to the Terms and Privacy Policy.");
       return;
     }
-
-    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    // const phoneRegex = /^\d{10}$/; // Assumes a 10-digit phone number
-
-    // if (!emailRegex.test(formData.emailOrPhone)) {
-    //   setError("Invalid email format.");
-    //   return;
-    // }
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
-
     let requestData = { fullName: formData.fullName, password: formData.password };
 
     if (emailRegex.test(formData.emailOrPhone)) {
@@ -78,15 +66,10 @@ const SignupPage = () => {
       setError("Please enter a valid email or phone number.");
       return;
     }
+
     setLoading(true);
-
     try {
-      await axios.post("http://localhost:5000/signup", {
-        fullName: formData.fullName,
-        email: formData.emailOrPhone, // Assuming backend expects 'email' or 'phoneNumber'
-        password: formData.password,
-      });
-
+      await axios.post("http://localhost:5000/signup", requestData);
       alert("Registration successful! Please log in.");
       navigate("/login");
     } catch (err) {
@@ -94,10 +77,6 @@ const SignupPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLoginRedirect = () => {
-    navigate("/login");
   };
 
   return (
@@ -113,89 +92,36 @@ const SignupPage = () => {
             {error && <p className="error-text">{error}</p>}
 
             <Form onSubmit={handleSubmit}>
-              <Form.Group className="input-group">
-                <Form.Control
-                  type="text"
-                  name="fullName"
-                  placeholder="Full Name"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  required
-                />
+              <Form.Group className="inputbox-group">
+                <Form.Control type="text" name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} required />
               </Form.Group>
-              <Form.Group className="input-group">
-                <Form.Control
-                  type="text"
-                  name="emailOrPhone"
-                  placeholder="Email Address / Phone Number"
-                  value={formData.emailOrPhone}
-                  onChange={handleChange}
-                  required
-                />
+              <Form.Group className="inputbox-group">
+                <Form.Control type="text" name="emailOrPhone" placeholder="Email Address / Phone Number" value={formData.emailOrPhone} onChange={handleChange} required />
               </Form.Group>
-              <Form.Group className="input-group password-group">
-                <Form.Control
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                />
-                <span
-                  className="toggle-password"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </span>
+              <Form.Group className="password-group">
+                <Form.Control type={showPassword ? "text" : "password"} name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+                <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>{showPassword ? <FaEyeSlash /> : <FaEye />}</span>
               </Form.Group>
-              <Form.Group className="input-group password-group">
-                <Form.Control
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  placeholder="Confirm Password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                />
-                <span
-                  className="toggle-password"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                </span>
+              <Form.Group className="password-group">
+                <Form.Control type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} required />
+                <span className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>{showConfirmPassword ? <FaEyeSlash /> : <FaEye />}</span>
               </Form.Group>
 
               <Form.Group className="checkbox-group">
-                <Form.Check
-                  type="checkbox"
-                  name="agreeTerms"
-                  checked={formData.agreeTerms}
-                  onChange={handleChange}
-                  label={
-                    <>
-                      I agree to the <span className="terms-link">Terms & Privacy Policy</span>
-                    </>
-                  }
-                />
+                <Form.Check type="checkbox" name="agreeTerms" checked={formData.agreeTerms} onChange={handleChange} label={<span>I agree to the <span className="terms-link">Terms & Privacy Policy</span></span>} />
               </Form.Group>
 
-              <Button className="continue-btn" type="submit" disabled={loading}>
-                {loading ? "Signing up..." : "Create an account"}
-              </Button>
+              <Button className="continue-btn" type="submit" disabled={loading}>{loading ? "Signing up..." : "Create an account"}</Button>
             </Form>
 
-            <p className="toggle-text">
-              Already have an account? <span className="toggle-link" onClick={handleLoginRedirect}>Login</span>
-            </p>
+            <p className="toggle-text">Already have an account? <span className="toggle-link" onClick={() => navigate("/login")}>Login</span></p>
 
             <p className="or-text">or</p>
 
-             {/* Social Signup Options */}
-             <div className="social-icons">
+            <div className="social-icons">
               <img src={googleIcon} alt="Google" className="social-icon" onClick={() => loginWithRedirect()} />
-              <img src={facebookIcon} alt="Facebook" className="social-icon" onClick={() => loginWithRedirect()}/>
-              <img src={appleIcon} alt="Apple" className="social-icon"onClick={() => loginWithRedirect()} />
+              <img src={facebookIcon} alt="Facebook" className="social-icon" onClick={() => loginWithRedirect()} />
+              <img src={appleIcon} alt="Apple" className="social-icon" onClick={() => loginWithRedirect()} />
             </div>
           </div>
         </div>
@@ -205,4 +131,3 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
-

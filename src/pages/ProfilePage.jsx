@@ -1,10 +1,28 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaArrowLeft, FaEdit, FaSave, FaCamera } from "react-icons/fa";
+import { FaArrowLeft, FaEdit, FaSave, FaCamera, FaTrash } from "react-icons/fa";
+import axios from "axios";
 import "../styles/ProfilePage.css";
+import DefaultPic from "../assets/profile.png";
 
-const ProfilePage = ({ profileData, setProfileData, onClose }) => {
+const ProfilePage = ({ onClose }) => {
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({ ...profileData });
+  const [formData, setFormData] = useState({
+    name: "",
+    dob: "",
+    phone: "",
+    email: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+    profilePic: "",
+    aadhaarFront: "",
+    aadhaarBack: "",
+    panCard: "",
+    passport: "",
+    driversLicense: "",
+  });
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -17,6 +35,22 @@ const ProfilePage = ({ profileData, setProfileData, onClose }) => {
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [onClose]);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFormData(response.data);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
 
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
@@ -40,9 +74,23 @@ const ProfilePage = ({ profileData, setProfileData, onClose }) => {
     }));
   };
 
-  const handleSave = () => {
-    setProfileData(formData);
-    setEditMode(false);
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put("http://localhost:5000/api/profile", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setEditMode(false);
+    } catch (error) {
+      console.error("Error saving profile data:", error);
+    }
+  };
+
+  const handleRemoveProfile = () => {
+    setFormData((prev) => ({
+      ...prev,
+      profilePic: "",
+    }));
   };
 
   return (
@@ -54,19 +102,15 @@ const ProfilePage = ({ profileData, setProfileData, onClose }) => {
         </div>
 
         <button className="edit-btn" onClick={() => setEditMode((prev) => !prev)}>
-          {editMode ? (
-            <>
-              <FaSave /> Save Changes
-            </>
-          ) : (
-            <>
-              <FaEdit /> Edit Profile
-            </>
-          )}
+          {editMode ? <FaSave onClick={handleSave} /> : <FaEdit />}
         </button>
 
         <div className="profile-picture">
-          <img src={formData.profilePic || "/default-avatar.png"} alt="Profile" />
+          <img
+            src={formData.profilePic || DefaultPic}
+            alt="Profile"
+            onError={(e) => { e.target.onerror = null; e.target.src = DefaultPic; }}
+          />
           {editMode && (
             <label className="file-upload">
               <FaCamera />
@@ -75,14 +119,16 @@ const ProfilePage = ({ profileData, setProfileData, onClose }) => {
                 accept="image/*"
                 onChange={(e) => handleFileChange(e, "profilePic")}
               />
+              <button className="remove-btn" onClick={handleRemoveProfile}>
+                <FaTrash />
+              </button>
             </label>
           )}
         </div>
 
         <div className="profile-fields">
           {[
-            { label: "First Name", key: "firstName", type: "text" },
-            { label: "Last Name", key: "lastName", type: "text" },
+            { label: "Name", key: "name", type: "text" },
             { label: "Date of Birth", key: "dob", type: "date" },
             { label: "Phone Number", key: "phone", type: "tel" },
             { label: "Email", key: "email", type: "email" },

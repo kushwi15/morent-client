@@ -1,9 +1,10 @@
-/* General Styling */
-* {
+/* General Styles */
+body, html {
+    font-family: 'Poppins', sans-serif;
+    color: white;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+    overflow-x: hidden;
 }
 
 body {
@@ -44,7 +45,7 @@ body {
     width: 100%;
     height: auto;
     object-fit: cover;
-    animation: carMove 1.5s ease-out forwards;
+    animation: carMove 1s ease-out forwards;
 }
 
 /* Right Section (Form) */
@@ -84,13 +85,13 @@ body {
 }
 
 /* Input Fields */
-.input-group {
+.inputbox-group {
     position: relative;
     width: 100%;
     margin-bottom: 15px;
 }
 
-.input-group input[type="text"][name="emailOrPhone"] {
+.inputbox-group input[type="text"][name="emailOrPhone"] {
     width: 100%;
     padding: 12px;
     font-size: 14px;
@@ -102,6 +103,8 @@ body {
 /* Password Group */
 .password-group {
     position: relative;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 .toggle-password {
@@ -240,7 +243,6 @@ body {
         transform: translateX(0);
         opacity: 1;
     }
-    
 }
 
 /* Responsive Design */

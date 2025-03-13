@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
 import Header from "../components/Header";
 import HeroSection from "../components/HeroSection";
@@ -7,10 +6,10 @@ import CarList from "../components/CarList";
 import Footer from "../components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const Home = () => {
+const Home = ({ isGuest }) => {
   return (
     <div>
-      <Header />
+      <Header isGuest={isGuest} />
       <HeroSection />
       <SearchForm />
       <CarList />
