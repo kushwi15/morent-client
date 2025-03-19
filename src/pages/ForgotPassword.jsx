@@ -1,71 +1,63 @@
-import React, { useState, useEffect } from "react";
-import { Button, Form } from "react-bootstrap";
+import { useState } from "react";
+import { Button, Form, Spinner, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/ForgotPassword.css";
+import "../styles/ForgotPassword.css"; 
 import logo from "../assets/LOGO.png";
+
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [method, setMethod] = useState("email");
   const [input, setInput] = useState("");
-  const [countryCode, setCountryCode] = useState("+91"); // Default India
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
 
-  const countryCodes = [
-    { code: "+91", country: "India" },
-    { code: "+1", country: "United States" },
-    { code: "+44", country: "United Kingdom" },
-    { code: "+86", country: "China" },
-    { code: "+81", country: "Japan" },
-  ];
-
-  useEffect(() => {
-    setInput("");
-    setOtp("");
-    setOtpSent(false);
+  const handleSendOTP = async ()   => {
+    setLoading(true);
     setMessage("");
     setError("");
-  }, [method]);
-
-  const handleSendOTP = async () => {
-    if (!input) {
-      setError(`Please enter your ${method === "email" ? "email" : "phone number"}.`);
-      return;
-    }
-
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/forgot-password", {
-        [method]: method === "phone" ? `${countryCode}${input}` : input,
-      });
-
-      setMessage(`OTP sent to your ${method}.`);
+      const payload = method === "phone" ? { phone: countryCode + input } : { email: input };
+      const response = await axios.post("http://localhost:5000/api/auth/forgotpassword", payload);
       setOtpSent(true);
-    } catch (error) {
-      setError(error.response?.data?.message || "Something went wrong.");
+      setMessage(response.data.message);
+    } catch (err) {
+      setError(err.response?.data?.message || "Error sending OTP. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleVerifyOTP = async () => {
-    if (!otp) {
-      setError("Please enter the OTP.");
-      return;
+    setLoading(true);
+    setMessage("");
+    setError("");
+    try {
+      const payload = method === "phone" ? { phone: countryCode + input, otp } : { email: input, otp };
+      const response = await axios.post("http://localhost:5000/api/auth/verifyotp", payload);
+      setMessage(response.data.message);
+      setTimeout(() => navigate("/reset-password", { state: { input, method } }), 1000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid OTP. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    navigate("/reset-password", { state: { input, method } });
   };
 
   return (
     <div className="forgot-wrapper">
       <div className="forgot-container">
-        <img src={logo} alt="Car Rental Logo" className="forgot-logo" />
+      <img src={logo} alt="Car Rental Logo" className="forgot-logo" />
         <div className="forgot-box">
           <h3 className="forgot-title">Forgot Password</h3>
-          {message && <p className="success-text">{message}</p>}
-          {error && <p className="error-text">{error}</p>}
+          
+          {message && <Alert variant="success">{message}</Alert>}
+          {error && <Alert variant="danger">{error}</Alert>}
 
           <Form.Group className="method-group">
             <Form.Label>Reset via:</Form.Label>
@@ -75,7 +67,7 @@ const ForgotPassword = () => {
             </Form.Control>
           </Form.Group>
 
-          {method === "email" && (
+          {method === "email" ? (
             <Form.Group className="inputbox-group">
               <Form.Control
                 type="email"
@@ -84,10 +76,8 @@ const ForgotPassword = () => {
                 onChange={(e) => setInput(e.target.value)}
               />
             </Form.Group>
-          )}
-
-          {method === "phone" && (
-            <Form.Group className="input-group">
+          ) : (
+            <Form.Group className="inputbox-group">
               <div className="phone-input-container">
                 <Form.Control
                   as="select"
@@ -95,10 +85,8 @@ const ForgotPassword = () => {
                   onChange={(e) => setCountryCode(e.target.value)}
                   className="country-code-select"
                 >
-                  {countryCodes.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.code} ({country.country})
-                    </option>
+                  {["+91", "+1", "+44", "+86", "+81"].map((code) => (
+                    <option key={code} value={code}>{code}</option>
                   ))}
                 </Form.Control>
                 <Form.Control
@@ -112,8 +100,8 @@ const ForgotPassword = () => {
             </Form.Group>
           )}
 
-          <Button className="reset-btn" onClick={handleSendOTP} disabled={otpSent}>
-            Send OTP
+          <Button className="reset-btn" onClick={handleSendOTP} disabled={loading || otpSent}>
+            {loading ? <Spinner as="span" animation="border" size="sm" /> : "Send OTP"}
           </Button>
 
           {otpSent && (
@@ -126,8 +114,8 @@ const ForgotPassword = () => {
                   onChange={(e) => setOtp(e.target.value)}
                 />
               </Form.Group>
-              <Button className="reset-btn" onClick={handleVerifyOTP}>
-                Verify OTP
+              <Button className="reset-btn" onClick={handleVerifyOTP} disabled={loading}>
+                {loading ? <Spinner as="span" animation="border" size="sm" /> : "Verify OTP"}
               </Button>
             </>
           )}

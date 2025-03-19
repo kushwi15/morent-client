@@ -1,28 +1,35 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { Button, Form } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import axios from "axios";
 import "../styles/ResetPassword.css";
 import logo from "../assets/LOGO.png";
- 
+
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
+  
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
- 
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   useEffect(() => {
     if (message || error) {
       const timer = setTimeout(() => {
         setMessage("");
         setError("");
-      }, 1000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [message, error]);
- 
-  const handleResetPassword = () => {
+
+  const handleResetPassword = async () => {
     if (!newPassword || !confirmPassword) {
       setError("Please enter and confirm your new password.");
       return;
@@ -31,37 +38,86 @@ const ResetPassword = () => {
       setError("Passwords do not match.");
       return;
     }
-    setMessage("✅ Password reset successfully! Redirecting to login...");
-    setError("");
-    setTimeout(() => {
-      navigate("/login");
-    }, 3000);
+
+    setLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/auth/resetpassword", {
+        email: state?.input, // Ensures user email is used correctly
+        newPassword,
+      });
+
+      setMessage("✅ Password reset successfully! Redirecting...");
+      setError("");
+
+      setTimeout(() => navigate("/login"), 3000);
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to reset password.");
+      setMessage("");
+    }
+    setLoading(false);
   };
- 
+
   return (
-    <div className="forgot-wrapper">
-      <div className="forgot-container">
-        <img src={logo} alt="Logo" className="forgot-logo" />
-        <div className="forgot-box">
-          <h3 className="forgot-title">Reset Password</h3>
+    <div className="reset-wrapper">
+      <div className="reset-container">
+        <img src={logo} alt="Logo" className="reset-logo" />
+        <div className="reset-box">
+          <h3 className="reset-title">Reset Password</h3>
+
           {error && <p className="error-text">{error}</p>}
           {message && <p className="success-text">{message}</p>}
- 
+
+          {/* New Password Input */}
           <Form.Group className="inputbox-group">
-            <Form.Control type="password" placeholder="Enter new password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <Form.Control
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              aria-label="New Password"
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+              role="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </Form.Group>
- 
+
+          {/* Confirm Password Input */}
           <Form.Group className="inputbox-group">
-            <Form.Control type="password" placeholder="Confirm new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+            <Form.Control
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              aria-label="Confirm New Password"
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              role="button"
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </Form.Group>
- 
-          <Button className="reset-btn" onClick={handleResetPassword}>Reset Password</Button>
- 
-          <p className="back-to-login" onClick={() => navigate("/login")}>Back to Login</p>
+
+          {/* Reset Password Button */}
+          <Button className="reset-btn" onClick={handleResetPassword} disabled={loading}>
+            {loading ? "Resetting..." : "Reset Password"}
+          </Button>
+
+          {/* Back to Login */}
+          <p className="back-to-login" onClick={() => navigate("/login")}>
+            Back to Login
+          </p>
         </div>
       </div>
     </div>
   );
 };
- 
+
 export default ResetPassword;

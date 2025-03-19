@@ -1,10 +1,9 @@
-/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth0} from "@auth0/auth0-react";
 import logo from "../assets/LOGO.png";
 import carImage from "../assets/car1.png";
 import googleIcon from "../assets/google.png";
@@ -36,7 +35,10 @@ const LoginPage = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
 
-    let requestData = { password: formData.password };
+    let requestData = {
+      emailOrPhone: formData.emailOrPhone, // Always send this
+      password: formData.password,
+    };    
 
     if (emailRegex.test(formData.emailOrPhone)) {
       requestData.email = formData.emailOrPhone;
@@ -49,17 +51,35 @@ const LoginPage = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/login", requestData);
-      localStorage.setItem("token", res.data.token);
-      navigate("/home");
+      const res = await axios.post("http://localhost:5000/api/auth/login", requestData);
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        console.log(localStorage.getItem("token"));
+        const userData = {
+          user_id: res.data.user_id, 
+          name: res.data.name,
+          email: res.data.email,
+          phone: res.data.phoneNumber,
+        };
+      
+        localStorage.setItem("user", JSON.stringify(userData)); 
+
+        console.log(userData);
+
+        navigate("/home");
+      } else {
+        setError("Login failed. Please try again.");
+      }
     } catch (err) {
       setError(
-        err.response?.status === 401
-          ? "Incorrect email or password."
-          : err.response?.status === 404
-          ? "User not found."
-          : "An error occurred. Please try again."
-      );
+        err.response
+          ? err.response.status === 401
+            ? "Incorrect email or password."
+            : err.response.status === 404
+            ? "User not found."
+            : err.response.data?.message || "An error occurred. Please try again."
+          : "Network error. Please check your connection."
+      );         
     } finally {
       setLoading(false);
     }
@@ -68,12 +88,9 @@ const LoginPage = () => {
   return (
     <div className="login-wrapper">
       <div className="login-container">
-        {/* Left Section - Image */}
         <div className="login-left">
           <img src={carImage} alt="Car Rental" className="car-image" />
         </div>
-
-        {/* Right Section - Login Form */}
         <div className="login-right">
           <img src={logo} alt="Car Rental Logo" className="login-logo" />
           <div className="login-box">
@@ -101,17 +118,12 @@ const LoginPage = () => {
                   onChange={handleChange}
                   required
                 />
-                <span
-                  className="toggle-password"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </Form.Group>
 
-              <p className="forgot-password" onClick={() => navigate("/forgot-password")}>
-                Forgot Password?
-              </p>
+              <p className="forgot-password" onClick={() => navigate("/forgot-password")}>Forgot Password?</p>
 
               <Button className="continue-btn" type="submit" disabled={loading}>
                 {loading ? "Logging in..." : "Continue"}
@@ -119,25 +131,18 @@ const LoginPage = () => {
             </Form>
 
             <p className="toggle-text">
-              Create an account{" "}
-              <span className="toggle-link" onClick={() => navigate("/signup")}>
-                Sign up
-              </span>
+              Create an account <span className="toggle-link" onClick={() => navigate("/signup")}>Sign up</span>
             </p>
 
             <p className="or-text">or</p>
 
-            {/* Social Login Options */}
             <div className="social-icons">
               <img src={googleIcon} alt="Google" className="social-icon" onClick={() => loginWithRedirect()} />
               <img src={facebookIcon} alt="Facebook" className="social-icon" onClick={() => loginWithRedirect()} />
               <img src={appleIcon} alt="Apple" className="social-icon" onClick={() => loginWithRedirect()} />
             </div>
 
-            {/* Guest Login */}
-            <button onClick={() => navigate("/home")} className="skip-btn">
-              Sign up as guest
-            </button>
+            <button onClick={() => navigate("/guest")} className="skip-btn">Sign up as guest</button>
           </div>
         </div>
       </div>
