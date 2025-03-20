@@ -180,7 +180,8 @@ const ProfilePage = () => {
         });
         console.log("Profile updated successfully:", response.data);
       } else {
-        response = await axios.post("http://:5000/api/profile", updatedData, {
+        // response = await axios.post("http://localhost:5000/api/profile", updatedData, {
+        response = await axios.post("https://morent-gjjg.onrender.com/api/profile", updatedData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
