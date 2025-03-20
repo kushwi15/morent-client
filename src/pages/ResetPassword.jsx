@@ -41,6 +41,7 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
+      // await axios.post("https://morent-gjjg.onrender.com/api/auth/resetpassword", {
       await axios.post("http://localhost:5000/api/auth/resetpassword", {
         email: state?.input, // Ensures user email is used correctly
         newPassword,

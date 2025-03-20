@@ -23,7 +23,8 @@ const ForgotPassword = () => {
     setError("");
     try {
       const payload = method === "phone" ? { phone: countryCode + input } : { email: input };
-      const response = await axios.post("http://localhost:5000/api/auth/forgotpassword", payload);
+      // const response = await axios.post("http://localhost:5000/api/auth/forgotpassword", payload);
+      const response = await axios.post("https://morent-gjjg.onrender.com/api/auth/forgotpassword", payload);
       setOtpSent(true);
       setMessage(response.data.message);
     } catch (err) {
@@ -39,7 +40,8 @@ const ForgotPassword = () => {
     setError("");
     try {
       const payload = method === "phone" ? { phone: countryCode + input, otp } : { email: input, otp };
-      const response = await axios.post("http://localhost:5000/api/auth/verifyotp", payload);
+      // const response = await axios.post("http://localhost:5000/api/auth/verifyotp", payload);
+      const response = await axios.post("https://morent-gjjg.onrender.com/api/auth/verifyotp", payload);
       setMessage(response.data.message);
       setTimeout(() => navigate("/reset-password", { state: { input, method } }), 1000);
     } catch (err) {

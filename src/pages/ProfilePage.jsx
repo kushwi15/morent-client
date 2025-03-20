@@ -70,7 +70,8 @@ const ProfilePage = () => {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          `http://localhost:5000/api/profile/${userData.user_id}`,
+          // `http://localhost:5000/api/profile/${userData.user_id}`,
+          `https://morent-gjjg.onrender.com/api/profile/${userData.user_id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -93,7 +94,7 @@ const ProfilePage = () => {
     fetchProfileData();
   }, [userData?.user_id]);
   
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = "https://morent-gjjg.onrender.com";
 
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
@@ -116,7 +117,8 @@ const ProfilePage = () => {
         return false;
       }
   
-      const response = await axios.get(`http://localhost:5000/api/profile/${formData.userId}`, {
+      // const response = await axios.get(`http://localhost:5000/api/profile/${formData.userId}`, {
+      const response = await axios.get(`https://morent-gjjg.onrender.com/api/profile/${formData.userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -169,7 +171,8 @@ const ProfilePage = () => {
   
       let response;
       if (profileExists) {
-        response = await axios.put(`http://localhost:5000/api/profile/${formData.userId}`, updatedData, {
+        // response = await axios.put(`http://localhost:5000/api/profile/${formData.userId}`, updatedData, {
+        response = await axios.put(`https://morent-gjjg.onrender.com/api/profile/${formData.userId}`, updatedData, {  
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -177,7 +180,7 @@ const ProfilePage = () => {
         });
         console.log("Profile updated successfully:", response.data);
       } else {
-        response = await axios.post("http://localhost:5000/api/profile", updatedData, {
+        response = await axios.post("http://:5000/api/profile", updatedData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -200,7 +203,8 @@ const ProfilePage = () => {
   const handleDeleteProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/profile/${userData.user_id}`, {
+      // await axios.delete(`http://localhost:5000/api/profile/${userData.user_id}`, {
+      await axios.delete(`https://morent-gjjg.onrender.com/api/profile/${userData.user_id}`, {  
         headers: { Authorization: `Bearer ${token}` },
       });
       onClose();
