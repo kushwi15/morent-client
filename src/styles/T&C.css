@@ -1,0 +1,238 @@
+/* ==============================
+   General Styles
+   ============================== */
+   .tc-section {
+    font-family: "Arial", sans-serif;
+    width: 100vw;
+    padding: 20px;
+    background: linear-gradient(135deg, #2e8b8b, #195c5c);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    animation: enhancedFadeIn 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    max-width: 100vw;
+    min-height: 100vh;
+}
+
+/* ==============================
+   Header Section
+   ============================== */
+.tc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 15px 20px;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.2);
+    position: relative;
+    margin-bottom: 20px;
+    animation: headerSlideIn 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+    animation-delay: 0.2s;
+    z-index: 1;
+}
+
+.tc-header h2 {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin: 0 auto;
+    pointer-events: none;
+}
+
+/* ==============================
+   Full Width Content Container
+   ============================== */
+   .tc-content-container {
+    width: 100%;
+    max-width: 100vw;
+    padding: 2rem 1.5rem;
+    margin: 0 auto;
+}
+
+/* ==============================
+   Content Styling - Clean & Readable
+   ============================== */
+.tc-content {
+    color: #ffffff;
+    line-height: 1.8;
+    font-size: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.tc-content p {
+    margin-bottom: 1.5rem;
+}
+
+.tc-content ol {
+    padding-left: 2rem;
+    margin-bottom: 2rem;
+}
+
+.tc-content li {
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+}
+
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+    .tc-content-container {
+        padding: 3rem;
+    }
+    
+    .tc-content {
+        font-size: 1.1rem;
+        padding: 0 2rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .tc-content {
+        padding: 0;
+    }
+}
+
+/* ==============================
+   Section Entrance Animation
+   ============================== */
+   .tc-section {
+    animation: gentleEntrance 0.8s ease-out forwards;
+}
+
+@keyframes gentleEntrance {
+    from { 
+        opacity: 0;
+        backdrop-filter: blur(5px);
+    }
+    to { 
+        opacity: 1;
+        backdrop-filter: blur(0);
+    }
+}
+
+/* ==============================
+   Header Animation
+   ============================== */
+.tc-header {
+    animation: headerReveal 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes headerReveal {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==============================
+   Content Block Animation
+   ============================== */
+.tc-content-container {
+    animation: contentAppear 0.8s ease-out forwards;
+    animation-delay: 0.3s;
+}
+
+@keyframes contentAppear {
+    from {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+    }
+    to {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+/* ==============================
+   Paragraph Stagger Animation
+   ============================== */
+.tc-content p,
+.tc-content li {
+    animation: textFadeUp 0.6s ease-out both;
+}
+
+@keyframes textFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger delays */
+.tc-content p { animation-delay: 0.4s; }
+.tc-content li:nth-child(1) { animation-delay: 0.5s; }
+.tc-content li:nth-child(2) { animation-delay: 0.6s; }
+.tc-content li:nth-child(3) { animation-delay: 0.7s; }
+.tc-content li:nth-child(4) { animation-delay: 0.8s; }
+.tc-content li:nth-child(5) { animation-delay: 0.9s; }
+
+@keyframes highlightFade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+        background: rgba(255, 221, 87, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        background: rgba(255, 221, 87, 0.1);
+    }
+}
+
+/* ==============================
+   Subtle Hover Effects
+   ============================== */
+.tc-content li {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tc-content li:hover {
+    padding-left: 1rem;
+}
+
+.tc-content li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #4fd1d1;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.tc-content li:hover::before {
+    opacity: 1;
+    transform: translateX(5px);
+}
+
+/* ==============================
+   Responsive Adjustments
+   ============================== */
+@media (max-width: 768px) {
+    .tc-content p,
+    .tc-content li {
+        animation: mobileFade 0.6s ease-out both;
+    }
+    
+    @keyframes mobileFade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+}

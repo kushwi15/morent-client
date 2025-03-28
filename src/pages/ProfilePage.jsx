@@ -5,6 +5,10 @@ import axios from "axios";
 import "../styles/ProfilePage.css";
 import DefaultPic from "../assets/profile.png";
 
+// Define API base URL once at the top
+const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
+// const API_BASE_URL = "http://localhost:5000/api"; 
+
 const ProfilePage = () => {
   const [editMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState(null);
@@ -30,6 +34,14 @@ const ProfilePage = () => {
   });
 
   const modalRef = useRef(null);
+
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  };
 
   // Load user data from localStorage
   useEffect(() => {
@@ -64,18 +76,13 @@ const ProfilePage = () => {
     const fetchProfileData = async () => {
       if (!userData?.user_id) return;
 
-      console.log("Fetching profile for user_id:", userData.user_id); 
+      console.log("Fetching profile for user_id:", userData.user_id);
 
       try {
-        const token = localStorage.getItem("token");
-
         const response = await axios.get(
-          // `http://localhost:5000/api/profile/${userData.user_id}`,
-          `https://morent-gjjg.onrender.com/api/profile/${userData.user_id}`,
+          `${API_BASE_URL}/profile/${userData.user_id}`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: getAuthHeaders(),
           }
         );
 
@@ -93,8 +100,6 @@ const ProfilePage = () => {
 
     fetchProfileData();
   }, [userData?.user_id]);
-  
-  const BASE_URL = "https://morent-gjjg.onrender.com";
 
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
@@ -110,43 +115,28 @@ const ProfilePage = () => {
 
   const checkProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
-  
-      if (!token) {
-        console.error("User is not authenticated.");
-        return false;
-      }
-  
-      // const response = await axios.get(`http://localhost:5000/api/profile/${formData.userId}`, {
-      const response = await axios.get(`https://morent-gjjg.onrender.com/api/profile/${formData.userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      return response.status === 200; // Profile exists if response is successful
+      const response = await axios.get(
+        `${API_BASE_URL}/profile/${formData.userId}`,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
+      return response.status === 200;
     } catch (error) {
       if (error.response?.status === 404) {
-        return false; // Profile does not exist
+        return false;
       }
       console.error("Error checking profile:", error.response?.data || error.message);
       return false;
     }
   };
-  
+
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem("token");
-  
-      if (!token) {
-        console.error("User is not authenticated.");
-        return;
-      }
-  
       // Show confirmation popup
       const isConfirmed = window.confirm("Are you sure you want to save the changes?");
       if (!isConfirmed) return;
-  
+
       const updatedData = new FormData();
       updatedData.append("name", formData.name);
       updatedData.append("dob", formData.dob);
@@ -157,57 +147,62 @@ const ProfilePage = () => {
       updatedData.append("state", formData.state);
       updatedData.append("zipCode", formData.zipCode);
       updatedData.append("country", formData.country);
-  
+
       if (formData.profilePic) updatedData.append("profilePic", formData.profilePic);
       if (formData.aadhaarFront) updatedData.append("aadhaarFront", formData.aadhaarFront);
       if (formData.aadhaarBack) updatedData.append("aadhaarBack", formData.aadhaarBack);
       if (formData.panCard) updatedData.append("panCard", formData.panCard);
       if (formData.passport) updatedData.append("passport", formData.passport);
       if (formData.driversLicense) updatedData.append("driversLicense", formData.driversLicense);
-  
+
       console.log("Checking if profile exists for ID:", formData.userId);
-  
-      const profileExists = await checkProfile(); // Call the defined checkProfile function
-  
+
+      const profileExists = await checkProfile();
       let response;
+
       if (profileExists) {
-        // response = await axios.put(`http://localhost:5000/api/profile/${formData.userId}`, updatedData, {
-        response = await axios.put(`https://morent-gjjg.onrender.com/api/profile/${formData.userId}`, updatedData, {  
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        console.log("Profile updated successfully:", response.data);
+        response = await axios.put(
+          `${API_BASE_URL}/profile/${formData.userId}`,
+          updatedData,
+          {
+            headers: {
+              ...getAuthHeaders(),
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
       } else {
-        // response = await axios.post("http://localhost:5000/api/profile", updatedData, {
-        response = await axios.post("https://morent-gjjg.onrender.com/api/profile", updatedData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        console.log("Profile created successfully:", response.data);
+        response = await axios.post(
+          `${API_BASE_URL}/profile`,
+          updatedData,
+          {
+            headers: {
+              ...getAuthHeaders(),
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
       }
-  
+
+      console.log("Profile saved successfully:", response.data);
       setEditMode(false);
     } catch (error) {
       console.error("Error saving profile:", error.response?.data || error.message);
     }
   };
-  
-    
+
   const onClose = () => {
-    navigate("/home"); // Navigate when closing the modal
+    navigate("/home");
   };
 
   const handleDeleteProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
-      // await axios.delete(`http://localhost:5000/api/profile/${userData.user_id}`, {
-      await axios.delete(`https://morent-gjjg.onrender.com/api/profile/${userData.user_id}`, {  
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${API_BASE_URL}/profile/${userData.user_id}`,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
       onClose();
     } catch (error) {
       console.error("Error deleting profile:", error);
@@ -227,15 +222,15 @@ const ProfilePage = () => {
         </button>
 
         <div className="profile-picture">
-        <img
-          src={
-            formData.profilePic instanceof File
-              ? URL.createObjectURL(formData.profilePic)
-              : formData.profilePic
-              ? `${BASE_URL}/uploads/${formData.profilePic.replace(/\\/g, "/")}`
-              : DefaultPic
-          }          
-        />
+          <img
+            src={
+              formData.profilePic instanceof File
+                ? URL.createObjectURL(formData.profilePic)
+                : formData.profilePic
+                ? `${API_BASE_URL.replace('/api', '')}/uploads/${formData.profilePic.replace(/\\/g, "/")}`
+                : DefaultPic
+            }
+          />
           {editMode && (
             <div className="file-upload">
               <label>
@@ -280,19 +275,18 @@ const ProfilePage = () => {
             <div key={key} className="document-section">
               <label>{key.replace(/([A-Z])/g, " $1")}:</label>
 
-              {/* Display Image from Database or Newly Uploaded File */}
               {formData[key] && (
                 <img
-                src={
-                  formData[key] instanceof File
-                    ? URL.createObjectURL(formData[key]) // Show preview for new uploads
-                    : formData[key]
-                    ? `${BASE_URL}/uploads/${formData[key].replace(/\\/g, "/")}` // Normalize path
-                    : DefaultPic
-                }                              />                           
+                  src={
+                    formData[key] instanceof File
+                      ? URL.createObjectURL(formData[key])
+                      : formData[key]
+                      ? `${API_BASE_URL.replace('/api', '')}/uploads/${formData[key].replace(/\\/g, "/")}`
+                      : DefaultPic
+                  }
+                />
               )}
               
-              {/* File Upload Input */}
               {editMode && <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, key)} />}
             </div>
           ))}

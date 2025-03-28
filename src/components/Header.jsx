@@ -1,17 +1,55 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaSearch, FaSlidersH, FaHeart, FaBell, FaCog, FaUser, FaFileAlt, FaBook, FaGift, FaSignOutAlt, FaCommentDots, FaQuestionCircle, FaClipboardList, FaShieldAlt, FaInfoCircle, FaPhone } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../styles/Header.css";
-import profilePic from "../assets/profile.png";
+import defaultProfilePic from "../assets/profile.png"; // Default profile picture
 import logo from "../assets/LOGO.png";
 
 const Header = ({ isGuest }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const [profilePic, setProfilePic] = useState(defaultProfilePic); // State for profile picture
   const profileDropdownRef = useRef(null);
   const settingsDropdownRef = useRef(null);
   const navigate = useNavigate();
 
+  // Fetch profile data when the component mounts
+  useEffect(() => {
+    if (!isGuest) {
+      fetchProfileData();
+    }
+  }, [isGuest]);
+
+  // Fetch profile data from the backend
+  const fetchProfileData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      if (!user || !user.user_id) {
+        console.error("User data not found in localStorage");
+        return;
+      }
+
+      // const response = await axios.get(`http://localhost:5000/api/profile/${user.user_id}`, {
+      const response = await axios.get(`https://morent-gjjg.onrender.com/api/profile/${user.user_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data && response.data.profilePic) {
+        // Update the profile picture state with the fetched image
+        // setProfilePic(`http://localhost:5000/uploads/${response.data.profilePic}`);
+        setProfilePic(`https://morent-gjjg.onrender.com/uploads/${response.data.profilePic}`);
+      }
+    } catch (error) {
+      console.error("Error fetching profile data:", error.response?.data || error.message);
+    }
+  };
+
+  // Handle click outside dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
@@ -25,7 +63,10 @@ const Header = ({ isGuest }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Handle logout
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setShowProfileDropdown(false);
     navigate("/login"); // Redirect to login page
   };
@@ -56,11 +97,26 @@ const Header = ({ isGuest }) => {
           {showSettingsDropdown && (
             <div className="settings-dropdown">
               <div className="dropdown-item"><FaCommentDots className="dropdown-icon" /><span className="dropdown-text"> Write Feedback</span></div>
-              <div className="dropdown-item"><FaQuestionCircle className="dropdown-icon" /><span className="dropdown-text"> FAQs</span></div>
-              <div className="dropdown-item"><FaClipboardList className="dropdown-icon" /><span className="dropdown-text"> Terms & Conditions</span></div>
-              <div className="dropdown-item"><FaShieldAlt className="dropdown-icon" /><span className="dropdown-text"> Privacy Policy</span></div>
-              <div className="dropdown-item"><FaInfoCircle className="dropdown-icon" /><span className="dropdown-text"> About Us</span></div>
-              <div className="dropdown-item"><FaPhone className="dropdown-icon" /><span className="dropdown-text"> Contact Us</span></div>
+              <div className="dropdown-item" onClick={() => navigate("/faq")} style={{ cursor: "pointer" }}>
+                <FaQuestionCircle className="dropdown-icon" />
+                <span className="dropdown-text"> FAQ</span>
+              </div>
+              <div className="dropdown-item" onClick={() => navigate("/t&c")} style={{ cursor: "pointer" }}>
+                <FaClipboardList className="dropdown-icon" />
+                <span className="dropdown-text"> Terms & Conditions</span>
+              </div>
+              <div className="dropdown-item" onClick={() => navigate("/privacypolicy")} style={{ cursor: "pointer" }}>
+                <FaShieldAlt className="dropdown-icon" />
+                <span className="dropdown-text"> Privacy Policy</span>
+              </div>
+              <div className="dropdown-item" onClick={() => navigate("/about")} style={{ cursor: "pointer" }}>
+                <FaInfoCircle className="dropdown-icon" />
+                <span className="dropdown-text"> About Us</span>
+              </div>
+              <div className="dropdown-item" onClick={() => navigate("/contact")} style={{ cursor: "pointer" }}>
+                <FaPhone className="dropdown-icon" />
+                <span className="dropdown-text"> Contact Us</span>
+              </div>
             </div>
           )}
         </div>

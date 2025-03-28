@@ -1,0 +1,284 @@
+/* ==============================
+   General Styles
+   ============================== */
+   .pp-section {
+    font-family: "Arial", sans-serif;
+    width: 100vw;
+    padding: 20px;
+    background: linear-gradient(135deg, #2e8b8b, #195c5c);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    animation: enhancedFadeIn 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    max-width: 100vw;
+    min-height: 100vh;
+}
+
+/* ==============================
+   Header Section
+   ============================== */
+.pp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 15px 20px;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.2);
+    position: relative;
+    margin-bottom: 20px;
+    animation: headerSlideIn 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+    animation-delay: 0.2s;
+    z-index: 1;
+}
+
+.pp-header h2 {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin: 0 auto;
+    pointer-events: none;
+}
+
+/* ==============================
+   Full Width Content Container
+   ============================== */
+   .pp-content-container {
+    width: 100%;
+    max-width: 100vw;
+    padding: 2rem 1.5rem;
+    margin: 0 auto;
+}
+
+/* ==============================
+   Content Styling - Clean & Readable
+   ============================== */
+.pp-content {
+    color: #ffffff;
+    line-height: 1.8;
+    font-size: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.pp-content p {
+    margin-bottom: 1.5rem;
+}
+
+.pp-content ol {
+    padding-left: 2rem;
+    margin-bottom: 2rem;
+}
+
+.pp-content li {
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+}
+
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+    .pp-content-container {
+        padding: 3rem;
+    }
+    
+    .pp-content {
+        font-size: 1.1rem;
+        padding: 0 2rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .pp-content {
+        padding: 0;
+    }
+}
+
+/* ==============================
+   Luxury Car Entrance Animation
+   ============================== */
+.pp-section {
+    animation: luxuryEntrance 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    perspective: 1000px;
+}
+
+@keyframes luxuryEntrance {
+    from { 
+        opacity: 0;
+        transform: translateY(20px) rotateX(10deg);
+        filter: brightness(1.2);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+        filter: brightness(1);
+    }
+}
+
+
+/* ==============================
+   Road Reveal Content Animation
+   ============================== */
+.pp-content-container {
+    animation: roadReveal 1.2s ease-in-out forwards;
+    animation-delay: 0.3s;
+    overflow: hidden;
+}
+
+@keyframes roadReveal {
+    from {
+        opacity: 0;
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    }
+    to {
+        opacity: 1;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+/* ==============================
+   Speedometer Text Animation
+   ============================== */
+.pp-content h3 {
+    animation: speedometerSpin 0.8s ease-out both;
+    transform-origin: left center;
+}
+
+@keyframes speedometerSpin {
+    from {
+        opacity: 0;
+        transform: translateX(-20px) rotate(-5deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) rotate(0);
+    }
+}
+
+/* ==============================
+   Carousel Paragraph Animation
+   ============================== */
+.pp-content p {
+    animation: carouselFade 0.8s ease-out both;
+}
+
+@keyframes carouselFade {
+    from {
+        opacity: 0;
+        transform: translateX(30px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* ==============================
+   Road Marker List Animation
+   ============================== */
+.pp-content li {
+    animation: roadMarker 0.6s cubic-bezier(0.5, 0, 0.75, 0) both;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+@keyframes roadMarker {
+    from {
+        opacity: 0;
+        transform: translateX(-1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Stagger delays with acceleration curve */
+.pp-content p { animation-delay: 0.4s; }
+.pp-content li:nth-child(1) { animation-delay: 0.5s; }
+.pp-content li:nth-child(2) { animation-delay: 0.6s; }
+.pp-content li:nth-child(3) { animation-delay: 0.7s; }
+.pp-content li:nth-child(4) { animation-delay: 0.8s; }
+.pp-content li:nth-child(5) { animation-delay: 0.9s; }
+
+/* ==============================
+   Headlight Highlight Effect
+   ============================== */
+.pp-content strong {
+    position: relative;
+    display: inline-block;
+}
+
+.pp-content strong::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #4fd1d1, #3498db);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s ease-out;
+}
+
+.pp-content strong:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* ==============================
+   Gear Shift Hover Effects
+   ============================== */
+.pp-content li {
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border-left: 2px solid transparent;
+}
+
+.pp-content li:hover {
+    border-left: 2px solid #3498db;
+    background: rgba(52, 152, 219, 0.05);
+    transform: translateX(5px);
+}
+
+/* ==============================
+   Responsive Roadside Adjustments
+   ============================== */
+@media (max-width: 768px) {
+    .pp-content p,
+    .pp-content li {
+        animation: mobileSwipe 0.6s ease-out both;
+    }
+    
+    @keyframes mobileSwipe {
+        from { 
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .pp-header {
+        animation: mobileHeader 0.6s ease-out forwards;
+    }
+    
+    @keyframes mobileHeader {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}

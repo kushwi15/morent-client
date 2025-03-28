@@ -5,6 +5,9 @@ import axios from "axios";
 import "../styles/ForgotPassword.css"; 
 import logo from "../assets/LOGO.png";
 
+// Define the base API URL
+// const API_BASE_URL = "http://localhost:5000/api/auth";
+const API_BASE_URL = "https://morent-gjjg.onrender.com/api/auth";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -17,14 +20,13 @@ const ForgotPassword = () => {
   const [error, setError] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
 
-  const handleSendOTP = async ()   => {
+  const handleSendOTP = async () => {
     setLoading(true);
     setMessage("");
     setError("");
     try {
       const payload = method === "phone" ? { phone: countryCode + input } : { email: input };
-      // const response = await axios.post("http://localhost:5000/api/auth/forgotpassword", payload);
-      const response = await axios.post("https://morent-gjjg.onrender.com/api/auth/forgotpassword", payload);
+      const response = await axios.post(`${API_BASE_URL}/forgotpassword`, payload);
       setOtpSent(true);
       setMessage(response.data.message);
     } catch (err) {
@@ -40,8 +42,7 @@ const ForgotPassword = () => {
     setError("");
     try {
       const payload = method === "phone" ? { phone: countryCode + input, otp } : { email: input, otp };
-      // const response = await axios.post("http://localhost:5000/api/auth/verifyotp", payload);
-      const response = await axios.post("https://morent-gjjg.onrender.com/api/auth/verifyotp", payload);
+      const response = await axios.post(`${API_BASE_URL}/verifyotp`, payload);
       setMessage(response.data.message);
       setTimeout(() => navigate("/reset-password", { state: { input, method } }), 1000);
     } catch (err) {
@@ -54,7 +55,7 @@ const ForgotPassword = () => {
   return (
     <div className="forgot-wrapper">
       <div className="forgot-container">
-      <img src={logo} alt="Car Rental Logo" className="forgot-logo" />
+        <img src={logo} alt="Car Rental Logo" className="forgot-logo" />
         <div className="forgot-box">
           <h3 className="forgot-title">Forgot Password</h3>
           
