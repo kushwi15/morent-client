@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -11,79 +11,67 @@ import facebookIcon from "../assets/facebook.png";
 import appleIcon from "../assets/apple.png";
 import "../styles/Login.css";
 
-// Define the base API URL
 // const API_BASE_URL = "http://localhost:5000/api/auth";
 const API_BASE_URL = "https://morent-gjjg.onrender.com/api/auth";
 
 const LoginPage = () => {
   const { loginWithRedirect } = useAuth0();
   const navigate = useNavigate();
+  const inputRef = useRef(null);
+
+  const [formData, setFormData] = useState({ emailOrPhone: "", password: "" });
+  const [countryCode, setCountryCode] = useState("+91");
+  const [inputMode, setInputMode] = useState("text"); // 'text', 'email', or 'tel'
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    emailOrPhone: "",
-    password: "",
-  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Handle Input Changes
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  // Maintain focus when input type changes
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [inputMode]);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, emailOrPhone: value });
+
+    // Determine input mode without changing it unnecessarily
+    if (value.includes("@")) {
+      setInputMode("email");
+    } else if (/^\d*$/.test(value)) {
+      setInputMode("tel");
+    } else {
+      setInputMode("text");
+    }
   };
 
-  // Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10}$/;
-
-    let requestData = {
-      emailOrPhone: formData.emailOrPhone, // Always send this
-      password: formData.password,
-    };
-
-    if (emailRegex.test(formData.emailOrPhone)) {
-      requestData.email = formData.emailOrPhone;
-    } else if (phoneRegex.test(formData.emailOrPhone)) {
-      requestData.phoneNumber = formData.emailOrPhone;
-    } else {
-      setError("Please enter a valid email or phone number.");
-      return;
-    }
-
     setLoading(true);
+
     try {
-      const res = await axios.post(`${API_BASE_URL}/login`, requestData);
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        console.log(localStorage.getItem("token"));
-        const userData = {
-          user_id: res.data.user_id,
-          name: res.data.name,
-          email: res.data.email,
-          phone: res.data.phoneNumber,
-        };
+      const isEmail = inputMode === "email";
+      const identifier = isEmail
+        ? formData.emailOrPhone
+        : `${countryCode}${formData.emailOrPhone.replace(/\D/g, '')}`;
 
-        localStorage.setItem("user", JSON.stringify(userData));
+      const { data } = await axios.post(`${API_BASE_URL}/login`, {
+        [isEmail ? "email" : "phoneNumber"]: identifier,
+        password: formData.password,
+      });
 
-        console.log(userData);
-
+      if (data.success) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         navigate("/home");
       } else {
-        setError("Login failed. Please try again.");
+        setError(data.message || "Login failed");
       }
     } catch (err) {
-      setError(
-        err.response
-          ? err.response.status === 401
-            ? "Incorrect email or password."
-            : err.response.status === 404
-            ? "User not found."
-            : err.response.data?.message || "An error occurred. Please try again."
-          : "Network error. Please check your connection."
-      );
+      setError(err.response?.data?.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -103,14 +91,43 @@ const LoginPage = () => {
 
             <Form onSubmit={handleSubmit}>
               <Form.Group className="inputbox-group">
-                <Form.Control
-                  type="text"
-                  name="emailOrPhone"
-                  placeholder="Email Address / Phone Number"
-                  value={formData.emailOrPhone}
-                  onChange={handleChange}
-                  required
-                />
+                {inputMode === "tel" ? (
+                  <div className="phone-input-container">
+                    <Form.Control
+                      as="select"
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="country-code-select"
+                    >
+                      {["+91", "+1", "+44", "+86", "+81"].map((code) => (
+                        <option key={code} value={code}>{code}</option>
+                      ))}
+                    </Form.Control>
+                    <Form.Control
+                      type="tel"
+                      ref={inputRef}
+                      name="emailOrPhone"
+                      placeholder="Phone Number"
+                      value={formData.emailOrPhone}
+                      onChange={handleInputChange}
+                      required
+                      className="phone-number-input"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                    />
+                  </div>
+                ) : (
+                  <Form.Control
+                    type={inputMode}
+                    ref={inputRef}
+                    name="emailOrPhone"
+                    placeholder={inputMode === "email" ? "Email Address" : "Email or Phone"}
+                    value={formData.emailOrPhone}
+                    onChange={handleInputChange}
+                    required
+                    inputMode={inputMode === "email" ? "email" : "text"}
+                  />
+                )}
               </Form.Group>
 
               <Form.Group className="password-group">
@@ -119,7 +136,7 @@ const LoginPage = () => {
                   name="password"
                   placeholder="Password"
                   value={formData.password}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
                 />
                 <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
@@ -146,24 +163,9 @@ const LoginPage = () => {
             <p className="or-text">or</p>
 
             <div className="social-icons">
-              <img
-                src={googleIcon}
-                alt="Google"
-                className="social-icon"
-                onClick={() => loginWithRedirect()}
-              />
-              <img
-                src={facebookIcon}
-                alt="Facebook"
-                className="social-icon"
-                onClick={() => loginWithRedirect()}
-              />
-              <img
-                src={appleIcon}
-                alt="Apple"
-                className="social-icon"
-                onClick={() => loginWithRedirect()}
-              />
+              {[googleIcon, facebookIcon, appleIcon].map((icon, index) => (
+                <img key={index} src={icon} alt="Social Login" className="social-icon" onClick={loginWithRedirect} />
+              ))}
             </div>
 
             <button onClick={() => navigate("/guest")} className="skip-btn">

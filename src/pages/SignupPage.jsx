@@ -21,6 +21,7 @@ const SignupPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [countryCode, setCountryCode] = useState("+91");
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -74,7 +75,13 @@ const SignupPage = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/signup`, formData);
+      // Include country code in the phone number when sending to the backend
+      const payload = {
+        ...formData,
+        phoneNumber: countryCode + formData.phoneNumber
+      };
+      
+      const response = await axios.post(`${API_BASE_URL}/signup`, payload);
 
       if (response.status === 201) {
         alert("Signup successful! Please log in.");
@@ -121,14 +128,27 @@ const SignupPage = () => {
                 />
               </Form.Group>
               <Form.Group className="inputbox-group">
-                <Form.Control
-                  type="text"
-                  name="phoneNumber"
-                  placeholder="Phone Number"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  required
-                />
+                <div className="phone-input-container">
+                  <Form.Control
+                    as="select"
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="country-code-select"
+                  >
+                    {["+91", "+1", "+44", "+86", "+81"].map((code) => (
+                      <option key={code} value={code}>{code}</option>
+                    ))}
+                  </Form.Control>
+                  <Form.Control
+                    type="tel"
+                    name="phoneNumber"
+                    placeholder="Phone Number"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    required
+                    className="phone-number-input"
+                  />
+                </div>
               </Form.Group>
               <Form.Group className="password-group">
                 <Form.Control
@@ -220,3 +240,5 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
+
+

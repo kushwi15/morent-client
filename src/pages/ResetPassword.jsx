@@ -33,33 +33,35 @@ const ResetPassword = () => {
     }
   }, [message, error]);
 
-  const handleResetPassword = async () => {
-    if (!newPassword || !confirmPassword) {
-      setError("Please enter and confirm your new password.");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+// Modify the handleResetPassword function:
+const handleResetPassword = async () => {
+  if (!newPassword || !confirmPassword) {
+    setError("Please enter and confirm your new password.");
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
 
-    setLoading(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/resetpassword`, {
-        email: state?.input, // Ensures user email is used correctly
-        newPassword,
-      });
+  setLoading(true);
+  try {
+    const response = await axios.post(`${API_BASE_URL}/resetpassword`, {
+      userId: state?.userId, // Add userId from state
+      resetToken: state?.token, // Add token from state
+      newPassword,
+    });
 
-      setMessage("✅ Password reset successfully! Redirecting...");
-      setError("");
+    setMessage("✅ Password reset successfully! Redirecting...");
+    setError("");
 
-      setTimeout(() => navigate("/login"), 3000);
-    } catch (error) {
-      setError(error.response?.data?.message || "Failed to reset password.");
-      setMessage("");
-    }
-    setLoading(false);
-  };
+    setTimeout(() => navigate("/login"), 3000);
+  } catch (error) {
+    setError(error.response?.data?.message || "Failed to reset password.");
+    setMessage("");
+  }
+  setLoading(false);
+};
 
   return (
     <div className="reset-wrapper">
