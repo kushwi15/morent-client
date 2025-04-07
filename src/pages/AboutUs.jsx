@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
   FaCar, FaMapMarkerAlt, FaShieldAlt, FaClock, 
-  FaHeadset, FaInfoCircle, FaCity, FaCog, FaUser,
+  FaHeadset, FaInfoCircle, FaCog, FaUser,
   FaFileAlt, FaBook, FaGift, FaSignOutAlt,
   FaCommentDots, FaQuestionCircle, FaClipboardList,
   FaPhoneAlt
@@ -11,161 +11,134 @@ import {
 import "../styles/AboutUs.css";
 import googplay from "../assets/google-play-badge.webp";
 import appstore from "../assets/app-store-badge.webp";
-
-// ==============================================================================
-// CONSTANTS & CONFIGURATION
-// ==============================================================================
+import defaultProfilePic from "../assets/profile.png";
 
 // const API_BASE_URL = "http://localhost:5000/api";
 const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
 
-// ==============================================================================
-// DATA
-// ==============================================================================
-
-const TESTIMONIALS = [
-  {
-    quote: "Used MORENT in Goa for a week. Flawless experience from booking to drop-off. Will rent again!",
-    author: "Arjun S., Goa Vacation",
-    rating: "★★★★★"
-  },
-  {
-    quote: "Monthly rental in Delhi saved me from metro crowds. Well-maintained cars and excellent service.",
-    author: "Neha G., Delhi Resident",
-    rating: "★★★★☆"
-  },
-  {
-    quote: "Perfect SUV for our Ladakh road trip. MORENT's all-India permit made border crossings easy.",
-    author: "Rohit M., Adventure Traveler",
-    rating: "★★★★★"
-  }
-];
-
-const FLEET_CATEGORIES = [
-  {
-    title: "Economy Cars",
-    description: "Fuel-efficient options perfect for city commuting",
-    price: "Starting from ₹999/day",
-    iconClass: "compact",
-    badge: "Most Popular"
-  },
-  {
-    title: "Premium Sedans",
-    description: "For business travel or comfortable family trips",
-    price: "Starting from ₹1,799/day",
-    iconClass: "sedan"
-  },
-  {
-    title: "SUVs & Crossovers",
-    description: "Spacious cabins for groups and rough terrain",
-    price: "Starting from ₹2,499/day",
-    iconClass: "suv",
-    badge: "Adventure Ready"
-  },
-  {
-    title: "Luxury Segment",
-    description: "Make special occasions unforgettable",
-    price: "Starting from ₹4,999/day",
-    iconClass: "luxury"
-  }
-];
-
-const FEATURES = [
-  {
-    icon: <FaShieldAlt className="feature-icon" />,
-    title: "Certified Quality",
-    description: "Every vehicle undergoes rigorous 150-point inspection and sanitization"
-  },
-  {
-    icon: <FaClock className="feature-icon" />,
-    title: "Flexible Durations",
-    description: "Rent by hour, day, week, or month with transparent pricing"
-  },
-  {
-    icon: <FaHeadset className="feature-icon" />,
-    title: "24/7 Roadside Assistance",
-    description: "Help is just a call away, anywhere in India"
-  },
-  {
-    icon: <FaMapMarkerAlt className="feature-icon" />,
-    title: "Nationwide Network",
-    description: "Pick-up/drop-off at multiple convenient locations"
-  }
-];
-
-// ==============================================================================
-// COMPONENT
-// ==============================================================================
-
 const AboutUs = () => {
-  // ============================================================================
-  // STATE & REFS
-  // ============================================================================
-  
-  const navigate = useNavigate();
-  const [profilePic, setProfilePic] = useState('/default-profile.png');
-  const [isGuest, setIsGuest] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
-  
-  const profileDropdownRef = useRef(null);
-  const settingsDropdownRef = useRef(null);
+  // State
+  const [state, setState] = useState({
+    profilePic: defaultProfilePic,
+    showProfileDropdown: false,
+    showSettingsDropdown: false,
+    isGuest: true
+  });
 
-  // ============================================================================
-  // EFFECTS
-  // ============================================================================
+  // Refs and navigation
+  const navigate = useNavigate();
+  const refs = {
+    profile: useRef(null),
+    settings: useRef(null)
+  };
+
+  // Data
+  const TESTIMONIALS = [
+    {
+      quote: "Used MORENT in Goa for a week. Flawless experience from booking to drop-off. Will rent again!",
+      author: "Arjun S., Goa Vacation",
+      rating: "★★★★★"
+    },
+    {
+      quote: "Monthly rental in Delhi saved me from metro crowds. Well-maintained cars and excellent service.",
+      author: "Neha G., Delhi Resident",
+      rating: "★★★★☆"
+    },
+    {
+      quote: "Perfect SUV for our Ladakh road trip. MORENT's all-India permit made border crossings easy.",
+      author: "Rohit M., Adventure Traveler",
+      rating: "★★★★★"
+    }
+  ];
+
+  const FLEET_CATEGORIES = [
+    {
+      title: "Economy Cars",
+      description: "Fuel-efficient options perfect for city commuting",
+      price: "Starting from ₹999/day",
+      iconClass: "compact",
+      badge: "Most Popular"
+    },
+    {
+      title: "Premium Sedans",
+      description: "For business travel or comfortable family trips",
+      price: "Starting from ₹1,799/day",
+      iconClass: "sedan"
+    },
+    {
+      title: "SUVs & Crossovers",
+      description: "Spacious cabins for groups and rough terrain",
+      price: "Starting from ₹2,499/day",
+      iconClass: "suv",
+      badge: "Adventure Ready"
+    },
+    {
+      title: "Luxury Segment",
+      description: "Make special occasions unforgettable",
+      price: "Starting from ₹4,999/day",
+      iconClass: "luxury"
+    }
+  ];
+
+  const FEATURES = [
+    {
+      icon: <FaShieldAlt className="feature-icon" />,
+      title: "Certified Quality",
+      description: "Every vehicle undergoes rigorous 150-point inspection and sanitization"
+    },
+    {
+      icon: <FaClock className="feature-icon" />,
+      title: "Flexible Durations",
+      description: "Rent by hour, day, week, or month with transparent pricing"
+    },
+    {
+      icon: <FaHeadset className="feature-icon" />,
+      title: "24/7 Roadside Assistance",
+      description: "Help is just a call away, anywhere in India"
+    },
+    {
+      icon: <FaMapMarkerAlt className="feature-icon" />,
+      title: "Nationwide Network",
+      description: "Pick-up/drop-off at multiple convenient locations"
+    }
+  ];
+
+  // Effects
+  useEffect(() => {
+    fetchProfile();
+    const updateProfile = () => fetchProfile();
+    window.addEventListener('profileUpdated', updateProfile);
+    return () => window.removeEventListener('profileUpdated', updateProfile);
+  }, []);
 
   useEffect(() => {
-    fetchProfileData();
-
-    const handleClickOutside = (event) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
-        setShowProfileDropdown(false);
-      }
-      if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target)) {
-        setShowSettingsDropdown(false);
-      }
+    const handleClickOutside = (e) => {
+      if (refs.profile.current?.contains(e.target) || refs.settings.current?.contains(e.target)) return;
+      setState(p => ({...p, showProfileDropdown: false, showSettingsDropdown: false}));
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ============================================================================
-  // API FUNCTIONS
-  // ============================================================================
+  // Profile functions
+  const fetchProfile = async () => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!token || !user?._id) return setState(p => ({...p, isGuest: true}));
 
-  const fetchProfileData = async () => {
     try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
-
-      if (!user?.user_id) {
-        setIsGuest(true);
-        return;
-      }
-
-      setIsGuest(false);
-
-      const response = await axios.get(`${API_BASE_URL}/profile/${user.user_id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const { data } = await axios.get(`${API_BASE_URL}/profile/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (response.data?.profilePic) {
-        setProfilePic(`${API_BASE_URL.replace('/api', '')}/uploads/${response.data.profilePic}`);
+      if (data?.profilePic) {
+        const picUrl = data.profilePic instanceof File ? data.profilePic.preview 
+          : `${API_BASE_URL.replace('/api', '')}/uploads/${data.profilePic}`;
+        setState(p => ({...p, profilePic: picUrl, isGuest: false}));
       }
     } catch (error) {
-      console.error("Error fetching profile data:", error.response?.data || error.message);
-    } finally {
-      setLoading(false);
+      console.error("Profile fetch error:", error);
     }
   };
-
-  // ============================================================================
-  // HANDLERS
-  // ============================================================================
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -173,119 +146,86 @@ const AboutUs = () => {
     navigate("/login");
   };
 
-  // ============================================================================
-  // RENDER FUNCTIONS
-  // ============================================================================
-
-  const renderProfileDropdown = () => (
-    <div className="profile-dropdown">
-      {isGuest ? (
-        <div className="dropdown-item" onClick={() => navigate("/login")}>
-          <FaUser className="dropdown-icon" />
-          <span className="dropdown-text">Login</span>
-        </div>
-      ) : (
-        <>
-          <div className="dropdown-item" onClick={() => navigate("/profile")}>
-            <FaUser className="dropdown-icon" />
-            <span className="dropdown-text">My Profile</span>
-          </div>
-          <div className="dropdown-item">
-            <FaFileAlt className="dropdown-icon" />
-            <span className="dropdown-text">Documents</span>
-          </div>
-          <div className="dropdown-item">
-            <FaBook className="dropdown-icon" />
-            <span className="dropdown-text">Bookings</span>
-          </div>
-          <div className="dropdown-item">
-            <FaGift className="dropdown-icon" />
-            <span className="dropdown-text">Rewards</span>
-          </div>
-          <div className="dropdown-item logout-btn" onClick={handleLogout}>
-            <FaSignOutAlt className="dropdown-icon" />
-            <span className="dropdown-text">Log Out</span>
-          </div>
-        </>
-      )}
-    </div>
-  );
-
-  const renderSettingsDropdown = () => (
-    <div className="settings-dropdown">
-      <div className="dropdown-item">
-        <FaCommentDots className="dropdown-icon" />
-        <span className="dropdown-text"> Write Feedback</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/faq")}>
-        <FaQuestionCircle className="dropdown-icon" />
-        <span className="dropdown-text"> FAQ</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/t&c")}>
-        <FaClipboardList className="dropdown-icon" />
-        <span className="dropdown-text"> Terms & Conditions</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/privacypolicy")}>
-        <FaShieldAlt className="dropdown-icon" />
-        <span className="dropdown-text"> Privacy Policy</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/about")}>
-        <FaInfoCircle className="dropdown-icon" />
-        <span className="dropdown-text"> About Us</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/contact")}>
-        <FaPhoneAlt className="dropdown-icon" />
-        <span className="dropdown-text"> Contact Us</span>
-      </div>
-    </div>
-  );
-
-  // ============================================================================
-  // MAIN RENDER
-  // ============================================================================
+  // Dropdown items
+  const dropdownItems = {
+    settings: [
+      { icon: FaCommentDots, text: "Write Feedback" },
+      { icon: FaQuestionCircle, text: "FAQ", action: () => navigate("/faq") },
+      { icon: FaClipboardList, text: "Terms & Conditions", action: () => navigate("/t&c") },
+      { icon: FaShieldAlt, text: "Privacy Policy", action: () => navigate("/privacypolicy") },
+      { icon: FaInfoCircle, text: "About Us", action: () => navigate("/about") },
+      { icon: FaPhoneAlt, text: "Contact Us", action: () => navigate("/contact") }
+    ],
+    profile: state.isGuest
+      ? [{ icon: FaUser, text: "Login", action: () => navigate("/login") }]
+      : [
+          { icon: FaUser, text: "My Profile", action: () => navigate("/profile") },
+          { icon: FaFileAlt, text: "Documents" },
+          { icon: FaBook, text: "Bookings" },
+          { icon: FaGift, text: "Rewards" },
+          { icon: FaSignOutAlt, text: "Log Out", action: handleLogout, className: "logout-btn" }
+        ]
+  };
 
   return (
     <div className="about-us-container">
       {/* Header Section */}
       <header className="about-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          ←
-        </button>
+        <button className="back-button" onClick={() => navigate(-1)}>←</button>
         <h2>About Us</h2>
 
         <div className="icon-container">
           {/* Settings Dropdown */}
-          <div className="settings-dropdown-container" ref={settingsDropdownRef}>
+          <div className="settings-dropdown-container" ref={refs.settings}>
             <span 
               className="icon-circle" 
-              onClick={() => setShowSettingsDropdown((prev) => !prev)}
+              onClick={() => setState(p => ({...p, showSettingsDropdown: !p.showSettingsDropdown}))}
               aria-label="Settings"
               role="button"
             >
               <FaCog />
             </span>
-            {showSettingsDropdown && renderSettingsDropdown()}
+            {state.showSettingsDropdown && (
+              <div className="settings-dropdown">
+                {dropdownItems.settings.map((item, i) => (
+                  <div key={i} className="dropdown-item" onClick={item.action}>
+                    <item.icon className="dropdown-icon" />
+                    <span className="dropdown-text">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Profile Dropdown */}
-          <div className="profile-dropdown-container" ref={profileDropdownRef}>
+          <div className="profile-dropdown-container" ref={refs.profile}>
             <div 
               className="profile-pic-container" 
-              onClick={() => setShowProfileDropdown((prev) => !prev)}
+              onClick={() => setState(p => ({...p, showProfileDropdown: !p.showProfileDropdown}))}
               aria-label="User profile"
               role="button"
             >
               <img 
-                src={profilePic} 
+                src={state.profilePic} 
                 alt="User profile" 
                 className="profile-pic" 
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = '/default-profile.png';
-                }}
+                onError={(e) => e.target.src = defaultProfilePic}
               />
             </div>
-            {showProfileDropdown && renderProfileDropdown()}
+            {state.showProfileDropdown && (
+              <div className="profile-dropdown">
+                {dropdownItems.profile.map((item, i) => (
+                  <div 
+                    key={i} 
+                    className={`dropdown-item ${item.className || ''}`} 
+                    onClick={item.action}
+                  >
+                    <item.icon className="dropdown-icon" />
+                    <span className="dropdown-text">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -306,9 +246,7 @@ const AboutUs = () => {
             <h2>Welcome to MORENT</h2>
             <p>
               MORENT is revolutionizing car rentals across India with our commitment to quality, 
-              convenience, and customer satisfaction. Whether you're in bustling metros, growing 
-              tier-2 cities, or exploring scenic routes, we deliver mobility solutions tailored 
-              to your needs.
+              convenience, and customer satisfaction.
             </p>
           </div>
         </section>
@@ -362,11 +300,6 @@ const AboutUs = () => {
         {/* CTA Section */}
         <section className="cta-section">
           <h2>Ready to Explore?</h2>
-          <p>Wherever you're going, get there with MORENT</p>
-          <div className="cta-buttons">
-            <button className="primary-cta">Book Your Vehicle</button>
-            <button className="secondary-cta">Download Our App</button>
-          </div>
           <div className="app-badges">
             <img 
               src={googplay} 

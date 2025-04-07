@@ -2,104 +2,74 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
-  FaPhoneAlt,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaPaperPlane,
-  FaUser,
-  FaFileAlt,
-  FaBook,
-  FaGift,
-  FaSignOutAlt,
-  FaCog,
-  FaCommentDots,
-  FaQuestionCircle,
-  FaClipboardList,
-  FaShieldAlt,
-  FaInfoCircle,
+  FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaPaperPlane,
+  FaUser, FaFileAlt, FaBook, FaGift, FaSignOutAlt,
+  FaCog, FaCommentDots, FaQuestionCircle, FaClipboardList,
+  FaShieldAlt, FaInfoCircle
 } from "react-icons/fa";
 import defaultProfilePic from "../assets/profile.png";
 import "../styles/ContactUs.css";
 
-// Define the base API URL
 // const API_BASE_URL = "http://localhost:5000/api";
 const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
 
 const ContactUs = () => {
-  const [profilePic, setProfilePic] = useState(defaultProfilePic);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
-  const [isGuest, setIsGuest] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const profileDropdownRef = useRef(null);
-  const settingsDropdownRef = useRef(null);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
+  // State
+  const [state, setState] = useState({
+    profilePic: defaultProfilePic,
+    showProfileDropdown: false,
+    showSettingsDropdown: false,
+    isGuest: true,
+    formData: {
+      name: "",
+      email: "",
+      phone: "",
+      message: ""
+    },
+    loading: false
   });
 
-  useEffect(() => {
-    fetchProfileData();
+  // Refs and navigation
+  const navigate = useNavigate();
+  const refs = {
+    profile: useRef(null),
+    settings: useRef(null)
+  };
 
-    // Close dropdowns on outside click
-    const handleClickOutside = (event) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
-        setShowProfileDropdown(false);
-      }
-      if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target)) {
-        setShowSettingsDropdown(false);
-      }
+  // Effects
+  useEffect(() => {
+    fetchProfile();
+    const updateProfile = () => fetchProfile();
+    window.addEventListener('profileUpdated', updateProfile);
+    return () => window.removeEventListener('profileUpdated', updateProfile);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (refs.profile.current?.contains(e.target) || refs.settings.current?.contains(e.target)) return;
+      setState(p => ({...p, showProfileDropdown: false, showSettingsDropdown: false}));
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fetchProfileData = async () => {
+  // Profile functions
+  const fetchProfile = async () => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!token || !user?._id) return setState(p => ({...p, isGuest: true}));
+
     try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
-
-      if (!user || !user.user_id) {
-        setIsGuest(true);
-        return;
-      }
-
-      setIsGuest(false);
-
-      const response = await axios.get(`${API_BASE_URL}/profile/${user.user_id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const { data } = await axios.get(`${API_BASE_URL}/profile/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (response.data?.profilePic) {
-        setProfilePic(`${API_BASE_URL.replace('/api', '')}/uploads/${response.data.profilePic}`);
+      if (data?.profilePic) {
+        const picUrl = data.profilePic instanceof File ? data.profilePic.preview 
+          : `${API_BASE_URL.replace('/api', '')}/uploads/${data.profilePic}`;
+        setState(p => ({...p, profilePic: picUrl, isGuest: false}));
       }
     } catch (error) {
-      console.error("Error fetching profile data:", error.response?.data || error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      const response = await axios.post(`${API_BASE_URL}/contact`, formData);
-      alert(response.data.message || "Message sent successfully!");
-      setFormData({ name: "", email: "", phone: "", message: "" });
-    } catch (error) {
-      alert("Error sending message. Please try again.");
-    } finally {
-      setLoading(false);
+      console.error("Profile fetch error:", error);
     }
   };
 
@@ -109,87 +79,110 @@ const ContactUs = () => {
     navigate("/login");
   };
 
+  // Form handlers
+  const handleChange = (e) => {
+    setState(p => ({
+      ...p,
+      formData: {
+        ...p.formData,
+        [e.target.name]: e.target.value
+      }
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setState(p => ({...p, loading: true}));
+      const response = await axios.post(`${API_BASE_URL}/contact`, state.formData);
+      alert(response.data.message || "Message sent successfully!");
+      setState(p => ({
+        ...p,
+        formData: { name: "", email: "", phone: "", message: "" },
+        loading: false
+      }));
+    } catch (error) {
+      alert("Error sending message. Please try again.");
+      setState(p => ({...p, loading: false}));
+    }
+  };
+
+  // Dropdown items
+  const dropdownItems = {
+    settings: [
+      { icon: FaCommentDots, text: "Write Feedback" },
+      { icon: FaQuestionCircle, text: "FAQ", action: () => navigate("/faq") },
+      { icon: FaClipboardList, text: "Terms & Conditions", action: () => navigate("/t&c") },
+      { icon: FaShieldAlt, text: "Privacy Policy", action: () => navigate("/privacypolicy") },
+      { icon: FaInfoCircle, text: "About Us", action: () => navigate("/about") },
+      { icon: FaPhoneAlt, text: "Contact Us", action: () => navigate("/contact") }
+    ],
+    profile: state.isGuest
+      ? [{ icon: FaUser, text: "Login", action: () => navigate("/login") }]
+      : [
+          { icon: FaUser, text: "My Profile", action: () => navigate("/profile") },
+          { icon: FaFileAlt, text: "Documents" },
+          { icon: FaBook, text: "Bookings" },
+          { icon: FaGift, text: "Rewards" },
+          { icon: FaSignOutAlt, text: "Log Out", action: handleLogout, className: "logout-btn" }
+        ]
+  };
+
   return (
     <section className="contact-section">
       {/* Header */}
       <div className="contact-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          ←
-        </button>
+        <button className="back-button" onClick={() => navigate(-1)}>←</button>
         <h2>Contact Us</h2>
 
         <div className="icon-container">
           {/* Settings Dropdown */}
-          <div className="settings-dropdown-container" ref={settingsDropdownRef}>
-            <span className="icon-circle" onClick={() => setShowSettingsDropdown((prev) => !prev)}>
+          <div className="settings-dropdown-container" ref={refs.settings}>
+            <span 
+              className="icon-circle" 
+              onClick={() => setState(p => ({...p, showSettingsDropdown: !p.showSettingsDropdown}))}
+              aria-label="Settings"
+            >
               <FaCog />
             </span>
-            {showSettingsDropdown && (
+            {state.showSettingsDropdown && (
               <div className="settings-dropdown">
-                <div className="dropdown-item">
-                  <FaCommentDots className="dropdown-icon" />
-                  <span className="dropdown-text"> Write Feedback</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/faq")}>
-                  <FaQuestionCircle className="dropdown-icon" />
-                  <span className="dropdown-text"> FAQ</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/t&c")}>
-                  <FaClipboardList className="dropdown-icon" />
-                  <span className="dropdown-text"> Terms & Conditions</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/privacypolicy")}>
-                  <FaShieldAlt className="dropdown-icon" />
-                  <span className="dropdown-text"> Privacy Policy</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/about")} style={{ cursor: "pointer" }}>
-                  <FaInfoCircle className="dropdown-icon" />
-                  <span className="dropdown-text"> About Us</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/contact")} style={{ cursor: "pointer" }}>
-                  <FaPhoneAlt className="dropdown-icon" />
-                  <span className="dropdown-text"> Contact Us</span>
-                </div>
+                {dropdownItems.settings.map((item, i) => (
+                  <div key={i} className="dropdown-item" onClick={item.action}>
+                    <item.icon className="dropdown-icon" />
+                    <span className="dropdown-text">{item.text}</span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
           {/* Profile Dropdown */}
-          <div className="profile-dropdown-container" ref={profileDropdownRef}>
-            <div className="profile-pic-container" onClick={() => setShowProfileDropdown((prev) => !prev)}>
-              <img src={profilePic} alt="User" className="profile-pic" />
+          <div className="profile-dropdown-container" ref={refs.profile}>
+            <div 
+              className="profile-pic-container" 
+              onClick={() => setState(p => ({...p, showProfileDropdown: !p.showProfileDropdown}))}
+              aria-label="User profile"
+            >
+              <img 
+                src={state.profilePic} 
+                alt="User" 
+                className="profile-pic" 
+                onError={(e) => e.target.src = defaultProfilePic}
+              />
             </div>
-            {showProfileDropdown && (
+            {state.showProfileDropdown && (
               <div className="profile-dropdown">
-                {isGuest ? (
-                  <div className="dropdown-item" onClick={() => navigate("/login")} style={{ cursor: "pointer" }}>
-                    <FaUser className="dropdown-icon" />
-                    <span className="dropdown-text">Login</span>
+                {dropdownItems.profile.map((item, i) => (
+                  <div 
+                    key={i} 
+                    className={`dropdown-item ${item.className || ''}`} 
+                    onClick={item.action}
+                  >
+                    <item.icon className="dropdown-icon" />
+                    <span className="dropdown-text">{item.text}</span>
                   </div>
-                ) : (
-                  <>
-                    <div className="dropdown-item" onClick={() => navigate("/profile")} style={{ cursor: "pointer" }}>
-                      <FaUser className="dropdown-icon" />
-                      <span className="dropdown-text">My Profile</span>
-                    </div>
-                    <div className="dropdown-item">
-                      <FaFileAlt className="dropdown-icon" />
-                      <span className="dropdown-text">Documents</span>
-                    </div>
-                    <div className="dropdown-item">
-                      <FaBook className="dropdown-icon" />
-                      <span className="dropdown-text">Bookings</span>
-                    </div>
-                    <div className="dropdown-item">
-                      <FaGift className="dropdown-icon" />
-                      <span className="dropdown-text">Rewards</span>
-                    </div>
-                    <div className="dropdown-item logout-btn" onClick={handleLogout}>
-                      <FaSignOutAlt className="dropdown-icon" />
-                      <span className="dropdown-text">Log Out</span>
-                    </div>
-                  </>
-                )}
+                ))}
               </div>
             )}
           </div>
@@ -206,7 +199,7 @@ const ContactUs = () => {
               type="text"
               name="name"
               placeholder="Enter your name"
-              value={formData.name}
+              value={state.formData.name}
               onChange={handleChange}
               required
             />
@@ -214,7 +207,7 @@ const ContactUs = () => {
               type="email"
               name="email"
               placeholder="Enter your email"
-              value={formData.email}
+              value={state.formData.email}
               onChange={handleChange}
               required
             />
@@ -222,19 +215,19 @@ const ContactUs = () => {
               type="tel"
               name="phone"
               placeholder="Enter your phone number"
-              value={formData.phone}
+              value={state.formData.phone}
               onChange={handleChange}
               required
             />
             <textarea
               name="message"
               placeholder="Write your message here"
-              value={formData.message}
+              value={state.formData.message}
               onChange={handleChange}
               required
             />
-            <button type="submit" className="send-button" disabled={loading}>
-              {loading ? "Sending..." : (
+            <button type="submit" className="send-button" disabled={state.loading}>
+              {state.loading ? "Sending..." : (
                 <>
                   <FaPaperPlane /> Send Message
                 </>

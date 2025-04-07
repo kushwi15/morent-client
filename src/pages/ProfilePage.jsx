@@ -5,14 +5,15 @@ import axios from "axios";
 import "../styles/ProfilePage.css";
 import DefaultPic from "../assets/profile.png";
 
-// Define API base URL once at the top
+// const API_BASE_URL = "http://localhost:5000/api";
 const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
-// const API_BASE_URL = "http://localhost:5000/api"; 
 
 const ProfilePage = () => {
+  // State Management
   const [editMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState(null);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
     userId: "",
@@ -33,9 +34,16 @@ const ProfilePage = () => {
     driversLicense: null,
   });
 
+  // Refs and Navigation
+  const navigate = useNavigate();
   const modalRef = useRef(null);
 
-  // Helper function to get auth headers
+  // Helper Functions
+  const extractFilename = (path) => {
+    if (!path) return null;
+    return path.split('/').pop();
+  };
+
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
     return {
@@ -43,254 +51,355 @@ const ProfilePage = () => {
     };
   };
 
-  // Load user data from localStorage
+  // Effect Hooks
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUserData(parsedUser);
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser && parsedUser._id) {
+          setUserData(parsedUser);
+        } else {
+          navigate("/login");
+        }
+      } catch (error) {
+        navigate("/login");
+      }
+    } else {
+      navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
-  // Update formData when userData is received
   useEffect(() => {
-    if (userData && userData.user_id) {
-      setFormData((prev) => ({
+    if (userData && userData._id) {
+      setFormData(prev => ({
         ...prev,
-        userId: userData.user_id,
-        name: userData.name || "",
-        dob: userData.dob || "",
-        phone: userData.phone || "",
+        userId: userData._id,
+        name: userData.fullName || "",
         email: userData.email || "",
-        address: userData.address || "",
-        city: userData.city || "",
-        state: userData.state || "",
-        zipCode: userData.zipCode || "",
-        country: userData.country || "",
+        phone: userData.phoneNumber || "",
       }));
     }
   }, [userData]);
 
-  // Fetch profile data from API
   useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!userData?.user_id) return;
-
-      console.log("Fetching profile for user_id:", userData.user_id);
-
-      try {
-        const response = await axios.get(
-          `${API_BASE_URL}/profile/${userData.user_id}`,
-          {
-            headers: getAuthHeaders(),
-          }
-        );
-
-        if (response.data) {
-          setProfile(response.data);
-          setFormData((prev) => ({
-            ...prev,
-            ...response.data,
-          }));
+    return () => {
+      Object.values(formData).forEach(value => {
+        if (value instanceof File && value.preview) {
+          URL.revokeObjectURL(value.preview);
         }
-      } catch (error) {
-        console.error("Error fetching profile data:", error.response?.data || error.message);
-      }
+      });
     };
+  }, [formData]);
 
+  useEffect(() => {
     fetchProfileData();
-  }, [userData?.user_id]);
+  }, [userData?._id]);
 
+  // Data Fetching
+  const fetchProfileData = async () => {
+    if (!userData?._id) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/profile/${userData._id}`,
+        { headers: getAuthHeaders() }
+      );
+
+      if (response.data) {
+        setProfile(response.data);
+        setFormData(prev => ({
+          ...prev,
+          ...response.data,
+          userId: userData._id
+        }));
+      }
+    } catch (error) {
+      if (error.response?.status !== 404) {
+        setError("Failed to load profile data");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Event Handlers
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, [field]: file }));
+      const fileWithPreview = Object.assign(file, {
+        preview: URL.createObjectURL(file)
+      });
+      setFormData(prev => ({ ...prev, [field]: fileWithPreview }));
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const checkProfile = async () => {
-    try {
-      const response = await axios.get(
-        `${API_BASE_URL}/profile/${formData.userId}`,
-        {
-          headers: getAuthHeaders(),
-        }
-      );
-      return response.status === 200;
-    } catch (error) {
-      if (error.response?.status === 404) {
-        return false;
-      }
-      console.error("Error checking profile:", error.response?.data || error.message);
-      return false;
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
     try {
-      // Show confirmation popup
-      const isConfirmed = window.confirm("Are you sure you want to save the changes?");
-      if (!isConfirmed) return;
-
-      const updatedData = new FormData();
-      updatedData.append("name", formData.name);
-      updatedData.append("dob", formData.dob);
-      updatedData.append("phone", formData.phone);
-      updatedData.append("email", formData.email);
-      updatedData.append("address", formData.address);
-      updatedData.append("city", formData.city);
-      updatedData.append("state", formData.state);
-      updatedData.append("zipCode", formData.zipCode);
-      updatedData.append("country", formData.country);
-
-      if (formData.profilePic) updatedData.append("profilePic", formData.profilePic);
-      if (formData.aadhaarFront) updatedData.append("aadhaarFront", formData.aadhaarFront);
-      if (formData.aadhaarBack) updatedData.append("aadhaarBack", formData.aadhaarBack);
-      if (formData.panCard) updatedData.append("panCard", formData.panCard);
-      if (formData.passport) updatedData.append("passport", formData.passport);
-      if (formData.driversLicense) updatedData.append("driversLicense", formData.driversLicense);
-
-      console.log("Checking if profile exists for ID:", formData.userId);
-
-      const profileExists = await checkProfile();
-      let response;
-
-      if (profileExists) {
-        response = await axios.put(
-          `${API_BASE_URL}/profile/${formData.userId}`,
-          updatedData,
-          {
-            headers: {
-              ...getAuthHeaders(),
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-      } else {
-        response = await axios.post(
-          `${API_BASE_URL}/profile`,
-          updatedData,
-          {
-            headers: {
-              ...getAuthHeaders(),
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+      if (!formData.userId) {
+        alert("User ID is missing");
+        return;
       }
-
-      console.log("Profile saved successfully:", response.data);
-      setEditMode(false);
-    } catch (error) {
-      console.error("Error saving profile:", error.response?.data || error.message);
-    }
-  };
-
-  const onClose = () => {
-    navigate("/home");
-  };
-
-  const handleDeleteProfile = async () => {
-    try {
-      await axios.delete(
-        `${API_BASE_URL}/profile/${userData.user_id}`,
-        {
-          headers: getAuthHeaders(),
+  
+      setLoading(true);
+      setError(null);
+  
+      const formDataToSend = new FormData();
+      formDataToSend.append('userId', formData.userId);
+  
+      const nonFileFields = ['name', 'dob', 'address', 'city', 'state', 'zipCode', 'country'];
+      nonFileFields.forEach(key => {
+        if (formData[key] !== undefined && formData[key] !== null) {
+          formDataToSend.append(key, formData[key]);
         }
-      );
-      onClose();
+      });
+  
+      const fileFields = ['profilePic', 'aadhaarFront', 'aadhaarBack', 'panCard', 'passport', 'driversLicense'];
+      fileFields.forEach(field => {
+        if (formData[field] instanceof File) {
+          formDataToSend.append(field, formData[field]);
+        } else if (formData[field] && typeof formData[field] === 'string') {
+          formDataToSend.append(field, formData[field]);
+        }
+      });
+  
+      const config = {
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+  
+      const url = profile 
+        ? `${API_BASE_URL}/profile/${formData.userId}`
+        : `${API_BASE_URL}/profile`;
+  
+      const method = profile ? 'patch' : 'post';
+  
+      const response = await axios[method](url, formDataToSend, config);
+  
+      const updatedProfileData = response.data.profile || response.data;
+  
+      setProfile(updatedProfileData);
+      setFormData(prev => ({
+        ...prev,
+        ...updatedProfileData,
+        ...fileFields.reduce((acc, field) => {
+          if (formData[field] instanceof File) {
+            acc[field] = formData[field];
+          }
+          return acc;
+        }, {})
+      }));
+  
+      setEditMode(false);
+
+      //  window.location.reload();   // Optional: Reload the page to reflect changes
+  
     } catch (error) {
-      console.error("Error deleting profile:", error);
+      console.error("Save error:", error);
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          "Failed to save profile";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleDeleteProfilePic = async () => {
+    try {
+      setLoading(true);
+      
+      const formDataToSend = new FormData();
+      formDataToSend.append('userId', formData.userId);
+      formDataToSend.append('profilePic', '');
+      
+      const config = {
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+  
+      await axios.patch(
+        `${API_BASE_URL}/profile/${formData.userId}`,
+        formDataToSend,
+        config
+      );
+  
+      setFormData(prev => ({ ...prev, profilePic: null }));
+      
+      if (profile) {
+        setProfile(prev => ({ ...prev, profilePic: null }));
+      }
+      
+    } catch (error) {
+      console.error("Error deleting profile picture:", error);
+      setError("Failed to delete profile picture");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onClose = () => navigate("/home");
+
+  // Render Helpers
+  const renderProfileImage = () => {
+    const imageUrl = formData.profilePic instanceof File
+      ? formData.profilePic.preview
+      : formData.profilePic
+      ? `${API_BASE_URL.replace('/api', '')}/uploads/${formData.profilePic}`
+      : DefaultPic;
+
+    return (
+      <img
+        src={imageUrl}
+        alt="Profile"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = DefaultPic;
+        }}
+      />
+    );
+  };
+
+  const renderDocumentImage = (key) => {
+    if (!formData[key]) return null;
+    
+    return (
+      <img
+        src={
+          formData[key] instanceof File
+            ? formData[key].preview
+            : `${API_BASE_URL.replace('/api', '')}/uploads/${formData.userId}/${extractFilename(formData[key])}?${Date.now()}`
+        }
+        alt={key}
+        onError={(e) => {
+          // e.target.src = DefaultPic;
+          console.error(`Failed to load ${key} image:`, formData[key]);
+        }}
+      />
+    );
+  };
+
+  // Loading and Error States
+  if (loading && !profile) return <div className="profile-modal-overlay">Loading...</div>;
+
+  if (error) return (
+    <div className="profile-modal-overlay">
+      <div className="profile-modal">
+        <div className="error-message">{error}</div>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    </div>
+  );
+
+  // Main Render
   return (
     <div className="profile-modal-overlay">
       <div className="profile-modal" ref={modalRef}>
+        {/* Header Section */}
         <div className="profile-header">
           <FaArrowLeft className="back-btn" onClick={onClose} />
           <h2>Profile Details</h2>
+          <button 
+            className="edit-btn" 
+            onClick={() => editMode ? handleSave() : setEditMode(true)}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : editMode ? <FaSave /> : <FaEdit />}
+          </button>
         </div>
 
-        <button className="edit-btn" onClick={() => (editMode ? handleSave() : setEditMode(true))}>
-          {editMode ? <FaSave /> : <FaEdit />}
-        </button>
-
+        {/* Profile Picture Section */}
         <div className="profile-picture">
-          <img
-            src={
-              formData.profilePic instanceof File
-                ? URL.createObjectURL(formData.profilePic)
-                : formData.profilePic
-                ? `${API_BASE_URL.replace('/api', '')}/uploads/${formData.profilePic.replace(/\\/g, "/")}`
-                : DefaultPic
-            }
-          />
+          {renderProfileImage()}
           {editMode && (
             <div className="file-upload">
               <label>
                 <FaCamera />
-                <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "profilePic")} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "profilePic")}
+                  disabled={loading}
+                />
               </label>
-              <button className="remove-btn" onClick={handleDeleteProfile}>
-                <FaTrash />
-              </button>
+              {formData.profilePic && (
+                <button
+                  className="remove-btn"
+                  onClick={handleDeleteProfilePic}
+                  disabled={loading}
+                >
+                  <FaTrash />
+                </button>
+              )}
             </div>
           )}
         </div>
 
+        {/* Profile Fields Section */}
         <div className="profile-fields">
           {[
-            { label: "Name", key: "name", type: "text" },
+            { label: "Name", key: "name", type: "text", required: true },
             { label: "Date of Birth", key: "dob", type: "date" },
-            { label: "Phone Number", key: "phone", type: "tel" },
-            { label: "Email", key: "email", type: "email" },
+            { label: "Phone Number", key: "phone", type: "tel", readOnly: true },
+            { label: "Email", key: "email", type: "email", required: true, readOnly: true },
             { label: "Address", key: "address", type: "text" },
             { label: "City", key: "city", type: "text" },
             { label: "State", key: "state", type: "text" },
             { label: "Zip Code", key: "zipCode", type: "text" },
             { label: "Country", key: "country", type: "text" },
-          ].map(({ label, key, type }) => (
+          ].map(({ label, key, type, required, readOnly }) => (
             <div key={key}>
-              <label>{label}:</label>
+              <label>
+                {label}:
+                {required && <span className="required-field">*</span>}
+              </label>
               <input
                 type={type}
                 name={key}
                 value={formData[key] || ""}
                 onChange={handleInputChange}
-                disabled={!editMode}
+                disabled={!editMode || loading}
+                required={required}
+                readOnly={readOnly}
+                className={readOnly ? "read-only-field" : ""}
               />
             </div>
           ))}
         </div>
 
+        {/* Documents Section */}
         <h3>Uploaded Documents</h3>
         <div className="document-upload">
           {["aadhaarFront", "aadhaarBack", "panCard", "passport", "driversLicense"].map((key) => (
             <div key={key} className="document-section">
-              <label>{key.replace(/([A-Z])/g, " $1")}:</label>
-
-              {formData[key] && (
-                <img
-                  src={
-                    formData[key] instanceof File
-                      ? URL.createObjectURL(formData[key])
-                      : formData[key]
-                      ? `${API_BASE_URL.replace('/api', '')}/uploads/${formData[key].replace(/\\/g, "/")}`
-                      : DefaultPic
-                  }
+              <label>{key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}:</label>
+              {renderDocumentImage(key)}
+              {editMode && (
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => handleFileChange(e, key)} 
+                  disabled={loading}
                 />
               )}
-              
-              {editMode && <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, key)} />}
             </div>
           ))}
         </div>
+
+        {/* Error Display */}
+        {error && <div className="error-message">{error}</div>}
       </div>
     </div>
   );

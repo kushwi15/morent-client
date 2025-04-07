@@ -3,73 +3,82 @@ import { FaSearch, FaSlidersH, FaHeart, FaBell, FaCog, FaUser, FaFileAlt, FaBook
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Header.css";
-import defaultProfilePic from "../assets/profile.png"; // Default profile picture
+import defaultProfilePic from "../assets/profile.png";
 import logo from "../assets/LOGO.png";
 
+// const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
+
 const Header = ({ isGuest }) => {
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
-  const [profilePic, setProfilePic] = useState(defaultProfilePic); // State for profile picture
-  const profileDropdownRef = useRef(null);
-  const settingsDropdownRef = useRef(null);
+  const [dropdowns, setDropdowns] = useState({ profile: false, settings: false });
+  const [profilePic, setProfilePic] = useState(defaultProfilePic);
+  const profileRef = useRef(null);
+  const settingsRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch profile data when the component mounts
-  useEffect(() => {
-    if (!isGuest) {
-      fetchProfileData();
-    }
-  }, [isGuest]);
+  const toggleDropdown = (name) => setDropdowns(prev => ({ ...prev, [name]: !prev[name] }));
 
-  // Fetch profile data from the backend
-  const fetchProfileData = async () => {
+  const fetchProfile = async () => {
+    if (isGuest) return;
     try {
-      const token = localStorage.getItem("token");
       const user = JSON.parse(localStorage.getItem("user"));
-
-      if (!user || !user.user_id) {
-        console.error("User data not found in localStorage");
-        return;
-      }
-
-      // const response = await axios.get(`http://localhost:5000/api/profile/${user.user_id}`, {
-      const response = await axios.get(`https://morent-gjjg.onrender.com/api/profile/${user.user_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      if (!user?._id) return;
+      
+      const { data } = await axios.get(`${API_BASE_URL}/profile/${user._id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
 
-      if (response.data && response.data.profilePic) {
-        // Update the profile picture state with the fetched image
-        // setProfilePic(`http://localhost:5000/uploads/${response.data.profilePic}`);
-        setProfilePic(`https://morent-gjjg.onrender.com/uploads/${response.data.profilePic}`);
+      if (data?.profilePic) {
+        const picUrl = data.profilePic instanceof File 
+          ? data.profilePic.preview 
+          : `${API_BASE_URL.replace('/api', '')}/uploads/${data.profilePic}`;
+        setProfilePic(picUrl);
       }
     } catch (error) {
-      console.error("Error fetching profile data:", error.response?.data || error.message);
+      console.error("Profile fetch error:", error);
     }
   };
 
-  // Handle click outside dropdowns
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
-        setShowProfileDropdown(false);
-      }
-      if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target)) {
-        setShowSettingsDropdown(false);
-      }
+    fetchProfile();
+    const updateProfile = () => fetchProfile();
+    window.addEventListener('profileUpdated', updateProfile);
+    return () => window.removeEventListener('profileUpdated', updateProfile);
+  }, [isGuest]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current?.contains(e.target) || settingsRef.current?.contains(e.target)) return;
+      setDropdowns({ profile: false, settings: false });
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    setShowProfileDropdown(false);
-    navigate("/login"); // Redirect to login page
+    navigate("/login");
   };
+
+  const settingsItems = [
+    { icon: FaCommentDots, text: "Write Feedback", action: () => {} },
+    { icon: FaQuestionCircle, text: "FAQ", action: () => navigate("/faq") },
+    { icon: FaClipboardList, text: "Terms & Conditions", action: () => navigate("/t&c") },
+    { icon: FaShieldAlt, text: "Privacy Policy", action: () => navigate("/privacypolicy") },
+    { icon: FaInfoCircle, text: "About Us", action: () => navigate("/about") },
+    { icon: FaPhone, text: "Contact Us", action: () => navigate("/contact") }
+  ];
+
+  const profileItems = isGuest
+    ? [{ icon: FaUser, text: "Login", action: () => navigate("/login") }]
+    : [
+        { icon: FaUser, text: "My Profile", action: () => navigate("/profile") },
+        { icon: FaFileAlt, text: "Documents", action: () => {} },
+        { icon: FaBook, text: "Bookings", action: () => {} },
+        { icon: FaGift, text: "Rewards", action: () => {} },
+        { icon: FaSignOutAlt, text: "Log Out", action: handleLogout, className: "logout-btn" }
+      ];
 
   return (
     <nav className="header-container">
@@ -84,67 +93,34 @@ const Header = ({ isGuest }) => {
 
       <div className="icon-group">
         <span className="icon-circle"><FaHeart /></span>
-        <span className="icon-circle notification">
-          <FaBell />
-          <span className="notification-dot"></span>
-        </span>
+        <span className="icon-circle notification"><FaBell /><span className="notification-dot" /></span>
 
-        {/* Settings Dropdown */}
-        <div className="settings-dropdown-container" ref={settingsDropdownRef}>
-          <span className="icon-circle" onClick={() => setShowSettingsDropdown((prev) => !prev)}>
-            <FaCog />
-          </span>
-          {showSettingsDropdown && (
+        <div className="settings-dropdown-container" ref={settingsRef}>
+          <span className="icon-circle" onClick={() => toggleDropdown('settings')}><FaCog /></span>
+          {dropdowns.settings && (
             <div className="settings-dropdown">
-              <div className="dropdown-item"><FaCommentDots className="dropdown-icon" /><span className="dropdown-text"> Write Feedback</span></div>
-              <div className="dropdown-item" onClick={() => navigate("/faq")} style={{ cursor: "pointer" }}>
-                <FaQuestionCircle className="dropdown-icon" />
-                <span className="dropdown-text"> FAQ</span>
-              </div>
-              <div className="dropdown-item" onClick={() => navigate("/t&c")} style={{ cursor: "pointer" }}>
-                <FaClipboardList className="dropdown-icon" />
-                <span className="dropdown-text"> Terms & Conditions</span>
-              </div>
-              <div className="dropdown-item" onClick={() => navigate("/privacypolicy")} style={{ cursor: "pointer" }}>
-                <FaShieldAlt className="dropdown-icon" />
-                <span className="dropdown-text"> Privacy Policy</span>
-              </div>
-              <div className="dropdown-item" onClick={() => navigate("/about")} style={{ cursor: "pointer" }}>
-                <FaInfoCircle className="dropdown-icon" />
-                <span className="dropdown-text"> About Us</span>
-              </div>
-              <div className="dropdown-item" onClick={() => navigate("/contact")} style={{ cursor: "pointer" }}>
-                <FaPhone className="dropdown-icon" />
-                <span className="dropdown-text"> Contact Us</span>
-              </div>
+              {settingsItems.map((item, i) => (
+                <div key={i} className="dropdown-item" onClick={item.action}>
+                  <item.icon className="dropdown-icon" />
+                  <span className="dropdown-text">{item.text}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Profile Dropdown */}
-        <div className="profile-dropdown-container" ref={profileDropdownRef}>
-          <div className="profile-pic-container" onClick={() => setShowProfileDropdown((prev) => !prev)}>
-            <img src={profilePic} alt="User" className="profile-pic" />
+        <div className="profile-dropdown-container" ref={profileRef}>
+          <div className="profile-pic-container" onClick={() => toggleDropdown('profile')}>
+            <img src={profilePic} alt="User" className="profile-pic" onError={(e) => e.target.src = defaultProfilePic} />
           </div>
-          {showProfileDropdown && (
+          {dropdowns.profile && (
             <div className="profile-dropdown">
-              {isGuest ? (
-                <div className="dropdown-item" onClick={() => navigate("/login")} style={{ cursor: "pointer" }}>
-                  <FaUser className="dropdown-icon" />
-                  <span className="dropdown-text"> Login</span>
+              {profileItems.map((item, i) => (
+                <div key={i} className={`dropdown-item ${item.className || ''}`} onClick={item.action}>
+                  <item.icon className="dropdown-icon" />
+                  <span className="dropdown-text">{item.text}</span>
                 </div>
-              ) : (
-                <>
-                  <div className="dropdown-item" onClick={() => navigate("/profile")} style={{ cursor: "pointer" }}>
-                    <FaUser className="dropdown-icon" />
-                    <span className="dropdown-text"> My Profile</span>
-                  </div>
-                  <div className="dropdown-item"><FaFileAlt className="dropdown-icon" /><span className="dropdown-text"> Documents</span></div>
-                  <div className="dropdown-item"><FaBook className="dropdown-icon" /><span className="dropdown-text"> Bookings</span></div>
-                  <div className="dropdown-item"><FaGift className="dropdown-icon" /><span className="dropdown-text"> Rewards</span></div>
-                  <div className="dropdown-item logout-btn" onClick={handleLogout}><FaSignOutAlt className="dropdown-icon" /><span className="dropdown-text"> Log Out</span></div>
-                </>
-              )}
+              ))}
             </div>
           )}
         </div>

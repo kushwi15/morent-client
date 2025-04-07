@@ -148,6 +148,19 @@
   /* ======================== */
   /* Profile Form Fields */
   /* ======================== */
+
+  /* Add to ProfilePage.css */
+.read-only-field {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  border: 1px solid #ddd;
+}
+
+/* For browsers that don't properly style readonly inputs */
+input[readonly] {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
  
   .profile-fields {
     display: grid;

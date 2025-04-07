@@ -2,61 +2,66 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
-  FaPhoneAlt,
-  FaUser,
-  FaFileAlt,
-  FaBook,
-  FaGift,
-  FaSignOutAlt,
-  FaCog,
-  FaCommentDots,
-  FaQuestionCircle,
-  FaClipboardList,
-  FaShieldAlt,
-  FaInfoCircle,
+  FaPhoneAlt, FaUser, FaFileAlt, FaBook, FaGift, FaSignOutAlt,
+  FaCog, FaCommentDots, FaQuestionCircle, FaClipboardList,
+  FaShieldAlt, FaInfoCircle
 } from "react-icons/fa";
 import defaultProfilePic from "../assets/profile.png";
 import "../styles/Policy.css";
 
-// Define the base API URL
-// const API_BASE_URL = "http://localhost:5000/api/auth";
-const API_BASE_URL = "https://morent-gjjg.onrender.com/api/auth";
+// const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
 
 const PP = () => {
-  // State management
-  const [profilePic, setProfilePic] = useState(defaultProfilePic);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
-  const [isGuest, setIsGuest] = useState(true);
-  const [loading, setLoading] = useState(false);
-  
+  // State
+  const [state, setState] = useState({
+    profilePic: defaultProfilePic,
+    showProfileDropdown: false,
+    showSettingsDropdown: false,
+    isGuest: true
+  });
+
   // Refs and navigation
   const navigate = useNavigate();
-  const profileDropdownRef = useRef(null);
-  const settingsDropdownRef = useRef(null);
+  const refs = {
+    profile: useRef(null),
+    settings: useRef(null)
+  };
 
   // Effects
   useEffect(() => {
-    fetchProfileData();
-    setupClickOutsideListeners();
-    return () => cleanupClickOutsideListeners();
+    fetchProfile();
+    const updateProfile = () => fetchProfile();
+    window.addEventListener('profileUpdated', updateProfile);
+    return () => window.removeEventListener('profileUpdated', updateProfile);
   }, []);
 
-  // Event handlers
-  const setupClickOutsideListeners = () => {
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (refs.profile.current?.contains(e.target) || refs.settings.current?.contains(e.target)) return;
+      setState(p => ({...p, showProfileDropdown: false, showSettingsDropdown: false}));
+    };
     document.addEventListener("mousedown", handleClickOutside);
-  };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const cleanupClickOutsideListeners = () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
+  // Profile functions
+  const fetchProfile = async () => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!token || !user?._id) return setState(p => ({...p, isGuest: true}));
 
-  const handleClickOutside = (event) => {
-    if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
-      setShowProfileDropdown(false);
-    }
-    if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target)) {
-      setShowSettingsDropdown(false);
+    try {
+      const { data } = await axios.get(`${API_BASE_URL}/profile/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data?.profilePic) {
+        const picUrl = data.profilePic instanceof File ? data.profilePic.preview 
+          : `${API_BASE_URL.replace('/api', '')}/uploads/${data.profilePic}`;
+        setState(p => ({...p, profilePic: picUrl, isGuest: false}));
+      }
+    } catch (error) {
+      console.error("Profile fetch error:", error);
     }
   };
 
@@ -66,214 +71,156 @@ const PP = () => {
     navigate("/login");
   };
 
-  // API functions
-  const fetchProfileData = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
-
-      if (!user || !user.user_id) {
-        setIsGuest(true);
-        return;
-      }
-
-      setIsGuest(false);
-
-      const response = await axios.get(`${API_BASE_URL}/profile/${user.user_id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.data?.profilePic) {
-        setProfilePic(`${API_BASE_URL.replace('/api', '')}/uploads/${response.data.profilePic}`);
-      }
-    } catch (error) {
-      console.error("Error fetching profile data:", error.response?.data || error.message);
-    } finally {
-      setLoading(false);
-    }
+  // Dropdown items
+  const dropdownItems = {
+    settings: [
+      { icon: FaCommentDots, text: "Write Feedback" },
+      { icon: FaQuestionCircle, text: "FAQ", action: () => navigate("/faq") },
+      { icon: FaClipboardList, text: "Terms & Conditions", action: () => navigate("/t&c") },
+      { icon: FaShieldAlt, text: "Privacy Policy", action: () => navigate("/privacypolicy") },
+      { icon: FaInfoCircle, text: "About Us", action: () => navigate("/about") },
+      { icon: FaPhoneAlt, text: "Contact Us", action: () => navigate("/contact") }
+    ],
+    profile: state.isGuest
+      ? [{ icon: FaUser, text: "Login", action: () => navigate("/login") }]
+      : [
+          { icon: FaUser, text: "My Profile", action: () => navigate("/profile") },
+          { icon: FaFileAlt, text: "Documents" },
+          { icon: FaBook, text: "Bookings" },
+          { icon: FaGift, text: "Rewards" },
+          { icon: FaSignOutAlt, text: "Log Out", action: handleLogout, className: "logout-btn" }
+        ]
   };
 
-  // Render functions
-  const renderSettingsDropdown = () => (
-    <div className="settings-dropdown">
-      <div className="dropdown-item">
-        <FaCommentDots className="dropdown-icon" />
-        <span className="dropdown-text"> Write Feedback</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/faq")}>
-        <FaQuestionCircle className="dropdown-icon" />
-        <span className="dropdown-text"> FAQ</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/t&c")}>
-        <FaClipboardList className="dropdown-icon" />
-        <span className="dropdown-text"> Terms & Conditions</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/privacypolicy")}>
-        <FaShieldAlt className="dropdown-icon" />
-        <span className="dropdown-text"> Privacy Policy</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/about")}>
-        <FaInfoCircle className="dropdown-icon" />
-        <span className="dropdown-text"> About Us</span>
-      </div>
-      <div className="dropdown-item" onClick={() => navigate("/contact")}>
-        <FaPhoneAlt className="dropdown-icon" />
-        <span className="dropdown-text"> Contact Us</span>
-      </div>
-    </div>
-  );
-
-  const renderProfileDropdown = () => (
-    <div className="profile-dropdown">
-      {isGuest ? (
-        <div className="dropdown-item" onClick={() => navigate("/login")}>
-          <FaUser className="dropdown-icon" />
-          <span className="dropdown-text">Login</span>
-        </div>
-      ) : (
-        <>
-          <div className="dropdown-item" onClick={() => navigate("/profile")}>
-            <FaUser className="dropdown-icon" />
-            <span className="dropdown-text">My Profile</span>
-          </div>
-          <div className="dropdown-item">
-            <FaFileAlt className="dropdown-icon" />
-            <span className="dropdown-text">Documents</span>
-          </div>
-          <div className="dropdown-item">
-            <FaBook className="dropdown-icon" />
-            <span className="dropdown-text">Bookings</span>
-          </div>
-          <div className="dropdown-item">
-            <FaGift className="dropdown-icon" />
-            <span className="dropdown-text">Rewards</span>
-          </div>
-          <div className="dropdown-item logout-btn" onClick={handleLogout}>
-            <FaSignOutAlt className="dropdown-icon" />
-            <span className="dropdown-text">Log Out</span>
-          </div>
-        </>
-      )}
-    </div>
-  );
-
-  const renderTermsContent = () => (
-<div className="pp-content">
-  <p>
-    This Privacy Policy describes how MORENT collects, uses, 
-    and shares your personal information when you use our car rental platform and services. 
-    At MORENT, we are committed to protecting your privacy and ensuring the security of your 
-    personal data. By using our website and services, you consent to the practices described 
-    in this Privacy Policy.
-  </p>
-  
-  <h3>1. Information We Collect</h3>
-  <p>
-    To provide our car rental services, we may collect the following information:
-  </p>
-  <ul>
-    <li><strong>Personal Details:</strong> Name, email, phone number, driver's license information, and payment details when you make a booking.</li>
-    <li><strong>Vehicle Information:</strong> Details about the cars you view, book, or rent through our platform.</li>
-    <li><strong>Device Information:</strong> Device type, IP address, browser type, and location data (with your consent) to optimize your rental experience.</li>
-    <li><strong>Usage Data:</strong> How you interact with our platform, including search history, booking patterns, and preferences.</li>
-    <li><strong>Driving Data:</strong> For certain rentals, we may collect mileage, fuel levels, and vehicle condition reports.</li>
-  </ul>
-  
-  <h3>2. Your Rights</h3>
-  <ul>
-    <li><strong>Access:</strong> Request a copy of the personal information we hold about your rentals and account.</li>
-    <li><strong>Correction:</strong> Update or correct your driver profile, payment methods, or account details.</li>
-    <li><strong>Deletion:</strong> Request deletion of your account and personal data, subject to legal retention requirements.</li>
-    <li><strong>Opt-Out:</strong> Unsubscribe from marketing emails about special offers and promotions.</li>
-    <li><strong>Data Portability:</strong> Request your rental history and account data in a digital format.</li>
-    <li><strong>Booking Management:</strong> Modify or cancel upcoming reservations through your account.</li>
-  </ul>
-  
-  <h3>3. Data Sharing</h3>
-  <ul>
-    <li>
-      <strong>With Rental Partners:</strong><br />
-      We share necessary information with our network of car rental providers to fulfill your bookings.
-    </li>
-    <li>
-      <strong>With Payment Processors:</strong><br />
-      Your payment details are securely processed by certified payment service providers.
-    </li>
-    <li>
-      <strong>With Insurance Providers:</strong><br />
-      When you opt for rental insurance, relevant details are shared with our insurance partners.
-    </li>
-    <li>
-      <strong>For Legal Compliance:</strong><br />
-      We may disclose information when required by law, such as for traffic violations or accidents.
-    </li>
-    <li>
-      <strong>With Service Providers:</strong><br />
-      Trusted partners who assist with customer support, IT services, and fraud prevention.
-    </li>
-  </ul>
-  
-  <h3>4. Security Measures</h3>
-  <p>
-    MORENT implements robust security measures to protect your data:
-  </p>
-  <ul>
-    <li>Encryption of all sensitive data during transmission and storage</li>
-    <li>Regular security audits of our systems</li>
-    <li>Limited employee access to personal information</li>
-    <li>Secure payment processing compliant with PCI DSS standards</li>
-    <li>Two-factor authentication for account access</li>
-  </ul>
-  
-  <h3>5. Policy Updates</h3>
-  <p>
-    We may update this Privacy Policy to reflect changes in our services or legal requirements. 
-    Significant changes will be communicated through our platform or via email. The updated 
-    version will be indicated by the "Last Updated" date at the top of this page.
-  </p>
-  
-  <h3>6. Contact Us</h3>
-  <p>
-    For any privacy-related questions or requests, please contact our Data Protection Officer at:<br />
-    <strong>Email:</strong> privacy@morent.com<br />
-    <strong>Phone:</strong> +1 (800) RENT-NOW<br />
-    <strong>Address:</strong> MORENT Privacy Office, 123 Rental Drive, Suite 100, Auto City, CA 90210
-  </p>
-</div>
-  );
+  // Privacy Policy content
+  const privacyContent = [
+    {
+      intro: "This Privacy Policy describes how MORENT collects, uses, and shares your personal information when you use our car rental platform and services. At MORENT, we are committed to protecting your privacy and ensuring the security of your personal data. By using our website and services, you consent to the practices described in this Privacy Policy."
+    },
+    {
+      title: "1. Information We Collect",
+      content: "To provide our car rental services, we may collect the following information:",
+      items: [
+        "Personal Details: Name, email, phone number, driver's license information, and payment details when you make a booking.",
+        "Vehicle Information: Details about the cars you view, book, or rent through our platform.",
+        "Device Information: Device type, IP address, browser type, and location data (with your consent) to optimize your rental experience.",
+        "Usage Data: How you interact with our platform, including search history, booking patterns, and preferences.",
+        "Driving Data: For certain rentals, we may collect mileage, fuel levels, and vehicle condition reports."
+      ]
+    },
+    {
+      title: "2. Your Rights",
+      items: [
+        "Access: Request a copy of the personal information we hold about your rentals and account.",
+        "Correction: Update or correct your driver profile, payment methods, or account details.",
+        "Deletion: Request deletion of your account and personal data, subject to legal retention requirements.",
+        "Opt-Out: Unsubscribe from marketing emails about special offers and promotions.",
+        "Data Portability: Request your rental history and account data in a digital format.",
+        "Booking Management: Modify or cancel upcoming reservations through your account."
+      ]
+    },
+    {
+      title: "3. Data Sharing",
+      items: [
+        "With Rental Partners: We share necessary information with our network of car rental providers to fulfill your bookings.",
+        "With Payment Processors: Your payment details are securely processed by certified payment service providers.",
+        "With Insurance Providers: When you opt for rental insurance, relevant details are shared with our insurance partners.",
+        "For Legal Compliance: We may disclose information when required by law, such as for traffic violations or accidents.",
+        "With Service Providers: Trusted partners who assist with customer support, IT services, and fraud prevention."
+      ]
+    },
+    {
+      title: "4. Security Measures",
+      content: "MORENT implements robust security measures to protect your data:",
+      items: [
+        "Encryption of all sensitive data during transmission and storage",
+        "Regular security audits of our systems",
+        "Limited employee access to personal information",
+        "Secure payment processing compliant with PCI DSS standards",
+        "Two-factor authentication for account access"
+      ]
+    },
+    {
+      title: "5. Policy Updates",
+      content: "We may update this Privacy Policy to reflect changes in our services or legal requirements. Significant changes will be communicated through our platform or via email. The updated version will be indicated by the 'Last Updated' date at the top of this page."
+    },
+    {
+      title: "6. Contact Us",
+      content: "For any privacy-related questions or requests, please contact our Data Protection Officer at:",
+      contact: [
+        "Email: privacy@morent.com",
+        "Phone: +1 (800) RENT-NOW",
+        "Address: MORENT Privacy Office, 123 Rental Drive, Suite 100, Auto City, CA 90210"
+      ]
+    }
+  ];
 
   return (
     <section className="pp-section">
-      {/* Header */}
       <div className="pp-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          ←
-        </button>
+        <button className="back-button" onClick={() => navigate(-1)}>←</button>
         <h2>Privacy Policy</h2>
-
+        
         <div className="icon-container">
-          {/* Settings Dropdown */}
-          <div className="settings-dropdown-container" ref={settingsDropdownRef}>
-            <span className="icon-circle" onClick={() => setShowSettingsDropdown((prev) => !prev)}>
+          <div className="settings-dropdown-container" ref={refs.settings}>
+            <span className="icon-circle" onClick={() => setState(p => ({...p, showSettingsDropdown: !p.showSettingsDropdown}))}>
               <FaCog />
             </span>
-            {showSettingsDropdown && renderSettingsDropdown()}
+            {state.showSettingsDropdown && (
+              <div className="settings-dropdown">
+                {dropdownItems.settings.map((item, i) => (
+                  <div key={i} className="dropdown-item" onClick={item.action}>
+                    <item.icon className="dropdown-icon" />
+                    <span className="dropdown-text">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Profile Dropdown */}
-          <div className="profile-dropdown-container" ref={profileDropdownRef}>
-            <div className="profile-pic-container" onClick={() => setShowProfileDropdown((prev) => !prev)}>
-              <img src={profilePic} alt="User" className="profile-pic" />
+          <div className="profile-dropdown-container" ref={refs.profile}>
+            <div className="profile-pic-container" onClick={() => setState(p => ({...p, showProfileDropdown: !p.showProfileDropdown}))}>
+              <img src={state.profilePic} alt="User" className="profile-pic" onError={(e) => e.target.src = defaultProfilePic} />
             </div>
-            {showProfileDropdown && renderProfileDropdown()}
+            {state.showProfileDropdown && (
+              <div className="profile-dropdown">
+                {dropdownItems.profile.map((item, i) => (
+                  <div key={i} className={`dropdown-item ${item.className || ''}`} onClick={item.action}>
+                    <item.icon className="dropdown-icon" />
+                    <span className="dropdown-text">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Privacy Policy Content */}
       <div className="pp-content-container">
-        {renderTermsContent()}
+        <div className="pp-content">
+          <p>{privacyContent[0].intro}</p>
+          
+          {privacyContent.slice(1).map((section, index) => (
+            <div key={index}>
+              <h3>{section.title}</h3>
+              {section.content && <p>{section.content}</p>}
+              {section.items && (
+                <ul>
+                  {section.items.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              )}
+              {section.contact && (
+                <div className="contact-info">
+                  {section.contact.map((info, i) => (
+                    <p key={i}><strong>{info.split(':')[0]}:</strong> {info.split(':')[1]}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

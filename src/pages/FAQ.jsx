@@ -17,7 +17,7 @@ import {
   FaShieldAlt,
   FaInfoCircle,
   FaSearch,
-  FaChevronDown
+  FaChevronDown 
 } from "react-icons/fa";
 import defaultProfilePic from "../assets/profile.png";
 import "../styles/FAQ.css";
@@ -43,9 +43,8 @@ const FAQ = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [containerHeight, setContainerHeight] = useState('auto');
 
-  // FAQ categories and questions
+  // FAQ categories and questions (unchanged from your original code)
   const categories = ["General", "Account", "Payment", "Service"];
-  
   const questions = {
     General: [
       {
@@ -164,42 +163,52 @@ const FAQ = () => {
     if (questionsListRef.current) {
       const height = filteredQuestions.length > 0 
         ? `${questionsListRef.current.scrollHeight}px`
-        : '300px'; // Minimum height when no results
+        : '300px';
       setContainerHeight(height);
     }
   }, [filteredQuestions, expandedQuestion]);
 
   // Fetch user profile data
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-        const user = JSON.parse(localStorage.getItem("user"));
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
 
-        if (!user || !user.user_id) {
-          setIsGuest(true);
-          return;
-        }
-
-        setIsGuest(false);
-
-        const response = await axios.get(`${API_BASE_URL}/profile/${user.user_id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (response.data?.profilePic) {
-          setProfilePic(`${API_BASE_URL.replace('/api', '')}/uploads/${response.data.profilePic}`);
-        }
-      } catch (error) {
-        console.error("Error fetching profile data:", error.response?.data || error.message);
-      } finally {
-        setLoading(false);
+      if (!token || !user?._id) {
+        setIsGuest(true);
+        return;
       }
-    };
 
-    fetchProfileData();
+      setIsGuest(false);
 
+      const { data } = await axios.get(`${API_BASE_URL}/profile/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (data?.profilePic) {
+        const picUrl = data.profilePic instanceof File 
+          ? data.profilePic.preview 
+          : `${API_BASE_URL.replace('/api', '')}/uploads/${data.profilePic}`;
+        setProfilePic(picUrl);
+      }
+    } catch (error) {
+      console.error("Profile fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+    
+    // Listen for profile updates from other components
+    const updateProfile = () => fetchProfile();
+    window.addEventListener('profileUpdated', updateProfile);
+    return () => window.removeEventListener('profileUpdated', updateProfile);
+  }, []);
+
+  useEffect(() => {
     // Close dropdowns when clicking outside
     const handleClickOutside = (event) => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
@@ -223,6 +232,27 @@ const FAQ = () => {
     setExpandedQuestion(expandedQuestion === index ? null : index);
   };
 
+  // Settings dropdown items
+  const settingsItems = [
+    { icon: FaCommentDots, text: "Write Feedback", action: () => {} },
+    { icon: FaQuestionCircle, text: "FAQ", action: () => navigate("/faq") },
+    { icon: FaClipboardList, text: "Terms & Conditions", action: () => navigate("/t&c") },
+    { icon: FaShieldAlt, text: "Privacy Policy", action: () => navigate("/privacypolicy") },
+    { icon: FaInfoCircle, text: "About Us", action: () => navigate("/about") },
+    { icon: FaPhoneAlt, text: "Contact Us", action: () => navigate("/contact") }
+  ];
+
+  // Profile dropdown items
+  const profileItems = isGuest
+    ? [{ icon: FaUser, text: "Login", action: () => navigate("/login") }]
+    : [
+        { icon: FaUser, text: "My Profile", action: () => navigate("/profile") },
+        { icon: FaFileAlt, text: "Documents", action: () => {} },
+        { icon: FaBook, text: "Bookings", action: () => {} },
+        { icon: FaGift, text: "Rewards", action: () => {} },
+        { icon: FaSignOutAlt, text: "Log Out", action: handleLogout, className: "logout-btn" }
+      ];
+
   return (
     <section className="faq-section">
       {/* Header */}
@@ -240,30 +270,12 @@ const FAQ = () => {
             </span>
             {showSettingsDropdown && (
               <div className="settings-dropdown">
-                <div className="dropdown-item">
-                  <FaCommentDots className="dropdown-icon" />
-                  <span className="dropdown-text"> Write Feedback</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/faq")}>
-                  <FaQuestionCircle className="dropdown-icon" />
-                  <span className="dropdown-text"> FAQ</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/t&c")}>
-                  <FaClipboardList className="dropdown-icon" />
-                  <span className="dropdown-text"> Terms & Conditions</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/privacypolicy")}>
-                  <FaShieldAlt className="dropdown-icon" />
-                  <span className="dropdown-text"> Privacy Policy</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/about")} style={{ cursor: "pointer" }}>
-                  <FaInfoCircle className="dropdown-icon" />
-                  <span className="dropdown-text"> About Us</span>
-                </div>
-                <div className="dropdown-item" onClick={() => navigate("/contact")} style={{ cursor: "pointer" }}>
-                  <FaPhoneAlt className="dropdown-icon" />
-                  <span className="dropdown-text"> Contact Us</span>
-                </div>
+                {settingsItems.map((item, i) => (
+                  <div key={i} className="dropdown-item" onClick={item.action}>
+                    <item.icon className="dropdown-icon" />
+                    <span className="dropdown-text">{item.text}</span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -271,48 +283,33 @@ const FAQ = () => {
           {/* Profile Dropdown */}
           <div className="profile-dropdown-container" ref={profileDropdownRef}>
             <div className="profile-pic-container" onClick={() => setShowProfileDropdown((prev) => !prev)}>
-              <img src={profilePic} alt="User" className="profile-pic" />
+              <img 
+                src={profilePic} 
+                alt="User" 
+                className="profile-pic" 
+                onError={(e) => e.target.src = defaultProfilePic}
+              />
             </div>
             {showProfileDropdown && (
               <div className="profile-dropdown">
-                {isGuest ? (
-                  <div className="dropdown-item" onClick={() => navigate("/login")} style={{ cursor: "pointer" }}>
-                    <FaUser className="dropdown-icon" />
-                    <span className="dropdown-text">Login</span>
+                {profileItems.map((item, i) => (
+                  <div 
+                    key={i} 
+                    className={`dropdown-item ${item.className || ''}`} 
+                    onClick={item.action}
+                  >
+                    <item.icon className="dropdown-icon" />
+                    <span className="dropdown-text">{item.text}</span>
                   </div>
-                ) : (
-                  <>
-                    <div className="dropdown-item" onClick={() => navigate("/profile")} style={{ cursor: "pointer" }}>
-                      <FaUser className="dropdown-icon" />
-                      <span className="dropdown-text">My Profile</span>
-                    </div>
-                    <div className="dropdown-item">
-                      <FaFileAlt className="dropdown-icon" />
-                      <span className="dropdown-text">Documents</span>
-                    </div>
-                    <div className="dropdown-item">
-                      <FaBook className="dropdown-icon" />
-                      <span className="dropdown-text">Bookings</span>
-                    </div>
-                    <div className="dropdown-item">
-                      <FaGift className="dropdown-icon" />
-                      <span className="dropdown-text">Rewards</span>
-                    </div>
-                    <div className="dropdown-item logout-btn" onClick={handleLogout}>
-                      <FaSignOutAlt className="dropdown-icon" />
-                      <span className="dropdown-text">Log Out</span>
-                    </div>
-                  </>
-                )}
+                ))}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* FAQ Content */}
+      {/* FAQ Content (unchanged from your original code) */}
       <div className="faq-content-container">
-        
         {/* Category Tabs */}
         <div className="faq-categories">
           {categories.map(category => (
