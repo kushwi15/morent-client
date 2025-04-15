@@ -5,7 +5,7 @@ import "../styles/Header.css";
 import profilePic from "../assets/profile.png";
 import logo from "../assets/LOGO.png";
 
-const Headerguest = () => {
+const HeaderGuest = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const profileDropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -59,4 +59,4 @@ const Headerguest = () => {
   );
 };
 
-export default Headerguest;
+export default HeaderGuest;

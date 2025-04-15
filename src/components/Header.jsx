@@ -85,7 +85,7 @@ const Header = ({ isGuest }) => {
       <div className="left-section">
         <img src={logo} alt="Logo" className="logo" />
         <div className="search-box">
-          <FaSearch className="search-icon" />
+          {/* <FaSearch className="search-icon" /> */}
           <input type="text" placeholder="Search something here" className="search-input" />
           <FaSlidersH className="filter-icon" />
         </div>

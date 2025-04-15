@@ -7,7 +7,7 @@ import ResetPassword from "../pages/ResetPassword";
 import Home from "../pages/Home";
 import Filter from "../pages/Filter";
 import ProfilePage from "../pages/ProfilePage";
-import Homeguest from "../pages/Home guest";
+import Homeguest from "../pages/HomeGuest";
 import FAQ from "../pages/FAQ";
 import TC from "../pages/T&C";
 import PP from "../pages/Policy";
@@ -28,7 +28,7 @@ const AppRouter = () => {
     <Router>
       <ErrorBoundary>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/" element={<Navigate to="/signup" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

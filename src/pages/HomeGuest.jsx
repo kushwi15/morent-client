@@ -2,13 +2,13 @@ import HeroSection from "../components/HeroSection";
 import SearchForm from "../components/LocationSelector"; // SearchForm is LocationSelector
 import CarList from "../components/CarList";
 import Footer from "../components/Footer";
-import Headerguest from "../components/Header guest";
+import HeaderGuest from "../components/HeaderGuest";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const Homeguest = () => {
+const HomeGuest = () => {
   return (
     <div>
-      <Headerguest />
+      <HeaderGuest />
       <HeroSection />
       <SearchForm />
       <CarList />
@@ -17,4 +17,4 @@ const Homeguest = () => {
   );
 };
 
-export default Homeguest;
+export default HomeGuest;

@@ -1,16 +1,13 @@
-// CarList.js
-/* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCars } from "../api/carService.js";
 import { FaHeart, FaGasPump, FaUserFriends } from "react-icons/fa";
 import { GiCarWheel } from "react-icons/gi";
-import carImage1 from "../assets/car1.png"; // Default car image
+import carImage1 from "../assets/car1.png";
 import "../styles/CarList.css";
 
 const CarList = ({ isCategoriesPage = false, filters = {}, showMore = 8 }) => {
   const [cars, setCars] = useState([]);
-  const [filteredCars, setFilteredCars] = useState([]);
   const [likedCars, setLikedCars] = useState({});
   const navigate = useNavigate();
 
@@ -18,7 +15,12 @@ const CarList = ({ isCategoriesPage = false, filters = {}, showMore = 8 }) => {
     const fetchCars = async () => {
       try {
         const carData = await getCars();
-        setCars(carData);
+        // Add price to each car (500 + index * 100)
+        const carsWithPrice = carData.map((car, index) => ({
+          ...car,
+          price: 500 + (index * 100)
+        }));
+        setCars(carsWithPrice);
       } catch (error) {
         console.error("Error fetching car data:", error);
         setCars([]);
@@ -27,23 +29,38 @@ const CarList = ({ isCategoriesPage = false, filters = {}, showMore = 8 }) => {
     fetchCars();
   }, []);
 
-  useEffect(() => {
-    let result = cars;
+  const filteredCars = useMemo(() => {
+    let result = [...cars];
 
+    // Type filter
     if (filters.type) {
-      result = result.filter((car) => car.type === filters.type);
+      result = result.filter((car) => 
+        car.type.toLowerCase() === filters.type.toLowerCase()
+      );
     }
 
+    // Capacity filter
     if (filters.capacity && filters.capacity.length > 0) {
-      result = result.filter((car) => filters.capacity.includes(car.seatingCapacity));
+      result = result.filter((car) => {
+        const capacityMap = {
+          "2 Person": "2 People",
+          "4 Person": "4 People",
+          "6 Person": "6 People",
+          "8 or More": "8 People"
+        };
+        return filters.capacity.some(cap => 
+          car.seatingCapacity === capacityMap[cap]
+        );
+      });
     }
 
+    // Price filter
     if (filters.maxPrice) {
-      result = result.filter((car) => 99 + cars.indexOf(car) <= filters.maxPrice);
+      result = result.filter((car) => car.price <= filters.maxPrice);
     }
 
-    setFilteredCars(result);
-  }, [cars, filters]);
+    return result;
+  }, [cars, filters.type, filters.capacity, filters.maxPrice]);
 
   const toggleLike = (index) => {
     setLikedCars((prev) => ({
@@ -52,9 +69,9 @@ const CarList = ({ isCategoriesPage = false, filters = {}, showMore = 8 }) => {
     }));
   };
 
-    const handleImageLoad = (event) => {
-        event.target.classList.add('loaded');
-    };
+  const handleImageLoad = (event) => {
+    event.target.classList.add('loaded');
+  };
 
   return (
     <div className="car-list-container">
@@ -74,7 +91,10 @@ const CarList = ({ isCategoriesPage = false, filters = {}, showMore = 8 }) => {
       <div className="car-list">
         {filteredCars.slice(0, showMore).map((car, index) => (
           <div key={index} className="car-card">
-            <span className={`like-icon ${likedCars[index] ? "liked" : ""}`} onClick={() => toggleLike(index)}>
+            <span 
+              className={`like-icon ${likedCars[index] ? "liked" : ""}`} 
+              onClick={() => toggleLike(index)}
+            >
               <FaHeart />
             </span>
 
@@ -88,7 +108,7 @@ const CarList = ({ isCategoriesPage = false, filters = {}, showMore = 8 }) => {
             <h5>{car.title}</h5>
 
             <div className="card-footer">
-              <p className="price">Price: ₹{1000 + cars.indexOf(car)} / day</p>
+              <p className="price">Price: ₹{car.price} / day</p>
               <button className="btn-rent">Rent Now</button>
             </div>
 
@@ -105,7 +125,9 @@ const CarList = ({ isCategoriesPage = false, filters = {}, showMore = 8 }) => {
             </div>
           </div>
         ))}
-        {filteredCars.length === 0 && <p>No cars found.</p>}
+        {filteredCars.length === 0 && (
+          <p className="no-results">No cars match your filters.</p>
+        )}
       </div>
     </div>
   );

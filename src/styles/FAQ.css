@@ -308,6 +308,7 @@
     background: rgba(255, 255, 255, 0.2);
     color: white;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: black;
 }
 
 .faq-search-input:focus {

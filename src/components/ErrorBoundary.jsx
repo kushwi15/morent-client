@@ -1,4 +1,5 @@
-import React, { Component } from "react";
+// src/components/ErrorBoundary.jsx
+import { Component } from 'react';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -11,19 +12,21 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("Error caught by Error Boundary:", error, errorInfo);
+    console.error("Error caught by boundary:", error, errorInfo);
+    // You can log errors to an error reporting service here
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ textAlign: "center", padding: "20px" }}>
-          <h2>Oops! Something went wrong.</h2>
-          <p>We're working on fixing the issue. Please try again later.</p>
+        <div className="error-fallback">
+          <h2>Something went wrong</h2>
+          <button onClick={() => window.location.reload()}>Refresh Page</button>
         </div>
       );
     }
-    return this.props.children;
+
+    return this.props.children; 
   }
 }
 

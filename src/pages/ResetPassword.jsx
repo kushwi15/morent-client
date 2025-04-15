@@ -7,7 +7,6 @@ import axios from "axios";
 import "../styles/ResetPassword.css";
 import logo from "../assets/LOGO.png";
 
-// Define the base API URL
 // const API_BASE_URL = "http://localhost:5000/api/auth";
 const API_BASE_URL = "https://morent-gjjg.onrender.com/api/auth";
 
@@ -24,6 +23,13 @@ const ResetPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
+    if (!state?.userId || !state?.token || !state?.role) {
+      setError("Invalid or expired reset link.");
+      setTimeout(() => navigate("/forgot-password"), 3000);
+    }
+  }, [state, navigate]);
+
+  useEffect(() => {
     if (message || error) {
       const timer = setTimeout(() => {
         setMessage("");
@@ -33,35 +39,34 @@ const ResetPassword = () => {
     }
   }, [message, error]);
 
-// Modify the handleResetPassword function:
-const handleResetPassword = async () => {
-  if (!newPassword || !confirmPassword) {
-    setError("Please enter and confirm your new password.");
-    return;
-  }
-  if (newPassword !== confirmPassword) {
-    setError("Passwords do not match.");
-    return;
-  }
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      setError("Please enter and confirm your new password.");
+      return;
+    }
 
-  setLoading(true);
-  try {
-    const response = await axios.post(`${API_BASE_URL}/resetpassword`, {
-      userId: state?.userId, // Add userId from state
-      resetToken: state?.token, // Add token from state
-      newPassword,
-    });
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
-    setMessage("✅ Password reset successfully! Redirecting...");
-    setError("");
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/resetpassword`, {
+        userId: state.userId,
+        resetToken: state.token,
+        newPassword,
+        role: state.role,
+      });
 
-    setTimeout(() => navigate("/login"), 3000);
-  } catch (error) {
-    setError(error.response?.data?.message || "Failed to reset password.");
-    setMessage("");
-  }
-  setLoading(false);
-};
+      setMessage("✅ Password reset successfully! Redirecting...");
+      setTimeout(() => navigate("/login"), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to reset password.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="reset-wrapper">
@@ -73,7 +78,6 @@ const handleResetPassword = async () => {
           {error && <p className="error-text">{error}</p>}
           {message && <p className="success-text">{message}</p>}
 
-          {/* New Password Input */}
           <Form.Group className="inputbox-group">
             <Form.Control
               type={showPassword ? "text" : "password"}
@@ -92,7 +96,6 @@ const handleResetPassword = async () => {
             </span>
           </Form.Group>
 
-          {/* Confirm Password Input */}
           <Form.Group className="inputbox-group">
             <Form.Control
               type={showConfirmPassword ? "text" : "password"}
@@ -111,12 +114,14 @@ const handleResetPassword = async () => {
             </span>
           </Form.Group>
 
-          {/* Reset Password Button */}
-          <Button className="reset-btn" onClick={handleResetPassword} disabled={loading}>
+          <Button
+            className="reset-btn"
+            onClick={handleResetPassword}
+            disabled={loading}
+          >
             {loading ? "Resetting..." : "Reset Password"}
           </Button>
 
-          {/* Back to Login */}
           <p className="back-to-login" onClick={() => navigate("/login")}>
             Back to Login
           </p>

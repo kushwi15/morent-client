@@ -1,75 +1,70 @@
-import { useState, useEffect, useRef } from "react";
-import { Button, Form } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useState, useEffect, useRef } from 'react';
+import { FaEye, FaEyeSlash, FaGoogle, FaFacebookF, FaApple } from 'react-icons/fa';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
+import axios from 'axios';
 import logo from "../assets/LOGO.png";
 import carImage from "../assets/car1.png";
-import googleIcon from "../assets/google.png";
-import facebookIcon from "../assets/facebook.png";
-import appleIcon from "../assets/apple.png";
-import "../styles/Login.css";
+import keyImage from "../assets/key.png";
+import '../styles/Login.css';
 
 // const API_BASE_URL = "http://localhost:5000/api/auth";
 const API_BASE_URL = "https://morent-gjjg.onrender.com/api/auth";
 
 const LoginPage = () => {
-  const { loginWithRedirect } = useAuth0();
   const navigate = useNavigate();
-  const inputRef = useRef(null);
+  const { loginWithRedirect } = useAuth0();
 
-  const [formData, setFormData] = useState({ emailOrPhone: "", password: "" });
-  const [countryCode, setCountryCode] = useState("+91");
-  const [inputMode, setInputMode] = useState("text"); // 'text', 'email', or 'tel'
+  const [activePanel, setActivePanel] = useState('user');
+  const [formData, setFormData] = useState({ identifier: '', countryCode: '+91', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [inputMode, setInputMode] = useState('text');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Maintain focus when input type changes
+  const inputRef = useRef(null);
+  const isUser = activePanel === 'user';
+
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [inputMode]);
+    if (inputRef.current) inputRef.current.focus();
+  }, [inputMode, activePanel]);
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setFormData({ ...formData, emailOrPhone: value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const trimmed = value.trim();
 
-    // Determine input mode without changing it unnecessarily
-    if (value.includes("@")) {
-      setInputMode("email");
-    } else if (/^\d*$/.test(value)) {
-      setInputMode("tel");
+    if (name === 'identifier') {
+      const newMode = trimmed.includes('@') ? 'email' : /^\d+$/.test(trimmed) ? 'tel' : 'text';
+      if (newMode !== inputMode) setInputMode(newMode);
+
+      const cleaned = newMode === 'tel' ? trimmed.replace(/\D/g, '') : trimmed;
+      setFormData(prev => ({ ...prev, [name]: cleaned }));
     } else {
-      setInputMode("text");
+      setFormData(prev => ({ ...prev, [name]: trimmed }));
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
-      const isEmail = inputMode === "email";
-      const identifier = isEmail
-        ? formData.emailOrPhone
-        : `${countryCode}${formData.emailOrPhone.replace(/\D/g, '')}`;
+      const { identifier, password, countryCode } = formData;
+      if (!identifier || !password) throw new Error("Please fill in all required fields.");
 
-      const { data } = await axios.post(`${API_BASE_URL}/login`, {
-        [isEmail ? "email" : "phoneNumber"]: identifier,
-        password: formData.password,
-      });
+      const payload = {
+        [inputMode === 'tel' ? 'phoneNumber' : 'email']: inputMode === 'tel' ? `${countryCode}${identifier}` : identifier,
+        password,
+        role: activePanel
+      };
 
-      if (data.success) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/home");
-      } else {
-        setError(data.message || "Login failed");
-      }
+      const { data } = await axios.post(`${API_BASE_URL}/login`, payload);
+      const { token, user } = data;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      navigate(isUser ? '/home' : '/owner-dashboard');
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");
     } finally {
@@ -77,100 +72,171 @@ const LoginPage = () => {
     }
   };
 
-  return (
-    <div className="login-wrapper">
-      <div className="login-container">
-        <div className="login-left">
-          <img src={carImage} alt="Car Rental" className="car-image" />
+  const handleSocialLogin = (provider) => {
+    loginWithRedirect({
+      connection: provider,
+      appState: { role: activePanel }
+    });
+  };
+
+  
+  const renderInputField = () => {
+    if (inputMode === 'tel') {
+      return (
+        <div className="phone-input-container">
+          <select
+            name="countryCode"
+            value={formData.countryCode}
+            onChange={handleChange}
+            className="country-code-select"
+            disabled={loading}
+          >
+            {["+91", "+1", "+44", "+86", "+81"].map(code => (
+              <option key={code} value={code}>{code}</option>
+            ))}
+          </select>
+          <input
+            ref={inputRef}
+            type="tel"
+            name="identifier"
+            placeholder="Phone Number"
+            value={formData.identifier}
+            onChange={handleChange}
+            required
+            disabled={loading}
+          />
         </div>
-        <div className="login-right">
-          <img src={logo} alt="Car Rental Logo" className="login-logo" />
-          <div className="login-box">
-            <h3 className="login-title">Login</h3>
-            {error && <p className="error-text">{error}</p>}
+      );
+    }
 
-            <Form onSubmit={handleSubmit}>
-              <Form.Group className="inputbox-group">
-                {inputMode === "tel" ? (
-                  <div className="phone-input-container">
-                    <Form.Control
-                      as="select"
-                      value={countryCode}
-                      onChange={(e) => setCountryCode(e.target.value)}
-                      className="country-code-select"
-                    >
-                      {["+91", "+1", "+44", "+86", "+81"].map((code) => (
-                        <option key={code} value={code}>{code}</option>
-                      ))}
-                    </Form.Control>
-                    <Form.Control
-                      type="tel"
-                      ref={inputRef}
-                      name="emailOrPhone"
-                      placeholder="Phone Number"
-                      value={formData.emailOrPhone}
-                      onChange={handleInputChange}
-                      required
-                      className="phone-number-input"
-                      pattern="[0-9]*"
-                      inputMode="numeric"
-                    />
-                  </div>
-                ) : (
-                  <Form.Control
-                    type={inputMode}
-                    ref={inputRef}
-                    name="emailOrPhone"
-                    placeholder={inputMode === "email" ? "Email Address" : "Email or Phone"}
-                    value={formData.emailOrPhone}
-                    onChange={handleInputChange}
-                    required
-                    inputMode={inputMode === "email" ? "email" : "text"}
-                  />
-                )}
-              </Form.Group>
+    return (
+      <input
+        ref={inputRef}
+        type={inputMode === 'email' ? 'email' : 'text'}
+        name="identifier"
+        placeholder={inputMode === 'email' ? 'Email Address' : 'Email or Phone'}
+        value={formData.identifier}
+        onChange={handleChange}
+        required
+        disabled={loading}
+      />
+    );
+  };
 
-              <Form.Group className="password-group">
-                <Form.Control
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                />
-                <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </span>
-              </Form.Group>
+  return (
+    <div className="login-page">
+      <div className={`container ${!isUser ? 'active' : ''}`}>
+        <div className={`form-container ${activePanel}-login`}>
+          <form onSubmit={handleLogin}>
+            <img src={logo} alt="Logo" className="logo" />
+            <h1>{isUser ? 'User' : 'Owner'} Login</h1>
 
-              <p className="forgot-password" onClick={() => navigate("/forgot-password")}>
-                Forgot Password?
-              </p>
+            {error && <div className="error-message">{error}</div>}
 
-              <Button className="continue-btn" type="submit" disabled={loading}>
-                {loading ? "Logging in..." : "Continue"}
-              </Button>
-            </Form>
+            {renderInputField()}
 
-            <p className="toggle-text">
-              Create an account{" "}
-              <span className="toggle-link" onClick={() => navigate("/signup")}>
-                Sign up
+            <div className="password-group">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              />
+              <span
+                className="toggle-password"
+                onClick={() => !loading && setShowPassword(!showPassword)}
+                role="button"
+                tabIndex="0"
+                onKeyDown={(e) => !loading && e.key === 'Enter' && setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
+            </div>
+
+            <p
+              className="forgot-password"
+              onClick={() => !loading && navigate("/forgot-password")}
+              role="button"
+              tabIndex="0"
+              onKeyDown={(e) => !loading && e.key === 'Enter' && navigate("/forgot-password")}
+            >
+              Forgot Password?
             </p>
 
-            <p className="or-text">or</p>
+            <button type="submit" className="continue-btn" disabled={loading}>
+              {loading ? <span className="spinner"></span> : `Continue as ${isUser ? 'User' : 'Owner'}`}
+            </button>
 
-            <div className="social-icons">
-              {[googleIcon, facebookIcon, appleIcon].map((icon, index) => (
-                <img key={index} src={icon} alt="Social Login" className="social-icon" onClick={loginWithRedirect} />
+            <p className="toggle-text">
+              Don’t have an account? <Link to="/signup">Sign Up</Link>
+            </p>
+
+            <span>or</span>
+
+            <div className="social-icons signup-page" style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+              {[
+                { Icon: FaGoogle, connection: 'google' },
+                { Icon: FaFacebookF, connection: 'facebook' },
+                { Icon: FaApple, connection: 'apple' },
+              ].map(({ Icon, connection }, index) => (
+                <a
+                  key={index}
+                  href="#"
+                  className="icon"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSocialLogin(connection);
+                  }}
+                >
+                  <Icon />
+                </a>
               ))}
             </div>
 
-            <button onClick={() => navigate("/guest")} className="skip-btn">
-              Sign up as guest
+            <button
+              type="button"
+              onClick={() => navigate("/guest")}
+              className="skip-btn"
+              disabled={loading}
+            >
+              Continue as Guest
             </button>
+          </form>
+        </div>
+
+        <div className="toggle-container">
+          <div className="toggle">
+            <div className={`toggle-panel toggle-left ${isUser ? 'active' : ''}`}>
+              <img src={carImage} alt="Rent a car" className="carnkey-image" />
+              <h1>Need a Car?</h1>
+              <p>Login to book your favorite car</p>
+              {!isUser && (
+                <button
+                  onClick={() => setActivePanel('user')}
+                  className="panel-switch-btn"
+                  disabled={loading}
+                >
+                  User Login
+                </button>
+              )}
+            </div>
+            <div className={`toggle-panel toggle-right ${!isUser ? 'active' : ''}`}>
+              <img src={keyImage} alt="Rent your car" className="carnkey-image" />
+              <h1>Own a Car?</h1>
+              <p>Login to rent out your vehicles</p>
+              {isUser && (
+                <button
+                  onClick={() => setActivePanel('owner')}
+                  className="panel-switch-btn"
+                  disabled={loading}
+                >
+                  Owner Login
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

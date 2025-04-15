@@ -3,6 +3,12 @@
   background: white;
   padding: 40px 5%;
   animation: fadeIn 0.8s ease-in-out;
+  margin-bottom: -20px;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  z-index: 1000;
+  
 }
  
 /* Top Section */

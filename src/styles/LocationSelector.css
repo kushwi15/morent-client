@@ -4,9 +4,7 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding: 30px 4%;
-  background: #f8f9fa;
-  /* flex-wrap: wrap; */
+  padding: 30px 0%;
 }
 
 /* Location Card */
@@ -37,9 +35,9 @@
   font-size: 18px;
 }
 
-.location-card input[type="radio"] {
+/* .location-card input[type="radio"] {
   margin-right: 8px;
-}
+} */
 
 /* Input Group */
 .input-group {

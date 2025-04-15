@@ -1,50 +1,67 @@
+/* HeroSection.css */
+
 .hero-section {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 30px;
-  padding:90px 4%;
+  padding: 90px 0% 0% 0%;
   flex-wrap: wrap;
-  background-color:#f8f9fa ;
 }
- 
-/* Card styles */
+
+/* Card styles - Enhanced */
 .card {
   display: flex;
   flex-direction: row;
-  align-items: space-between;
-  justify-content: space-between;
   color: white;
-  padding: 30px;
-  border-radius: 15px;
+  padding: 40px;
+  border-radius: 20px;
   width: 48%;
-  min-height: 250px;
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  min-height: 280px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
 }
- 
-/* Hover effect */
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%);
+  z-index: -1;
+}
+
+/* Hover effect - Enhanced */
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
 }
- 
-/* First card background */
+
+/* Card backgrounds - Enhanced */
 .card-primary {
-  background: #5c999e !important;
+  background: linear-gradient(135deg, #5c999e 0%, #3a7a80 100%);
 }
- 
-/* Second card background */
+
 .card-secondary {
-  background: #5c999e !important;
+  background: linear-gradient(135deg, #5c999e 0%, #2c656a 100%);
 }
- 
+
 .card-content {
   flex: 1;
   text-align: left;
-  animation: fadeIn 0.8s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  animation: fadeIn 0.8s ease-out;
+  z-index: 2;
+  padding-right: 20px;
 }
- 
+
 /* Hero image styling */
 .hero-image-container {
   display: flex;
@@ -64,91 +81,127 @@
 .hero-image:hover {
   transform: scale(1.05);
 }
- 
-/* Button styling */
+
+/* Button styling - Enhanced */
 .btn-rent {
   background: white;
   color: #007bff;
   border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 14px 28px;
+  border-radius: 50px;
   cursor: pointer;
-  font-size: 16px;
-  margin-top: 15px;
-  transition: all 0.3s ease-in-out;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+  width: fit-content;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
 }
- 
+
 .btn-rent:hover {
-  background: #0056b3;
+  background: #0069d9;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 20px rgba(0,0,0,0.15);
 }
- 
-/* Animations */
+
+/* Animations - Enhanced */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
- 
+
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(20px); }
+  from { opacity: 0; transform: translateX(30px); }
   to { opacity: 1; transform: translateX(0); }
 }
- 
+
+/* Decorative element */
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  z-index: -1;
+}
+
+/* Responsive Design - Enhanced */
+@media screen and (max-width: 1200px) {
+  .card {
+    padding: 35px;
+    min-height: 260px;
+  }
+  
+}
+
 @media screen and (max-width: 1024px) {
   .hero-section {
     flex-direction: column;
-    align-items: center;
-    padding: 80px 10px; /* Reduced padding */
+    padding: 80px 5%;
   }
-
+  
   .card {
-    width: 85%; /* Slightly reduced width */
+    width: 80%;
     flex-direction: column;
     text-align: center;
-    padding: 18px;
+    padding: 35px;
+    min-height: auto;
   }
-
+  
   .hero-image-container {
+    width: 100%;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 25px;
+    order: 1;
   }
 
-  .hero-image {
-    max-width: 200px; /* Smaller image */
+  
+  .btn-rent {
+    margin: 20px auto 0;
   }
 }
 
 @media screen and (max-width: 768px) {
   .hero-section {
-    padding: 100px 5px; /* Further reduced padding */
+    padding: 70px 3%;
   }
-
+  
   .card {
-    width: 80%; /* Make the cards more compact */
-    padding: 15px;
+    width: 85%;
+    padding: 30px;
   }
-
+  
+  
   .hero-image {
-    max-width: 180px;
+    max-width: 250px;
   }
 }
 
 @media screen and (max-width: 480px) {
   .hero-section {
-    padding: 80px 5px; /* More compact on smaller screens */
+    padding: 60px 0%;
+    gap: 25px;
   }
-
+  
   .card {
-    width: 90%; /* Increase width slightly for better readability */
-    padding: 12px;
+    width: 90%;
+    padding: 25px;
+    border-radius: 15px;
   }
-
+  
+  
   .hero-image {
-    max-width: 150px;
+    max-width: 200px;
   }
-
+  
   .btn-rent {
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
   }
 }

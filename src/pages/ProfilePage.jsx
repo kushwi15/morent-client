@@ -5,8 +5,8 @@ import axios from "axios";
 import "../styles/ProfilePage.css";
 import DefaultPic from "../assets/profile.png";
 
-// const API_BASE_URL = "http://localhost:5000/api";
-const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
+const API_BASE_URL = "http://localhost:5000/api";
+// const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
 
 const ProfilePage = () => {
   // State Management

@@ -10,11 +10,11 @@ import LocationSelector from "../components/LocationSelector";
 const Filter = () => {
   const [selectedType, setSelectedType] = useState(null);
   const [selectedCapacity, setSelectedCapacity] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(100000); // Set initial state to 1 lakh
+  const [maxPrice, setMaxPrice] = useState(10000); // Set initial state to 1 lakh
   const [filters, setFilters] = useState({
     type: null,
     capacity: [],
-    maxPrice: 100000, // Set initial filters maxPrice to 1 lakh
+    maxPrice: 10000, // Set initial filters maxPrice to 1 lakh
   });
   const [showMore, setShowMore] = useState(8);
   const navigate = useNavigate();
@@ -37,8 +37,8 @@ const Filter = () => {
   const clearFilters = () => {
     setSelectedType(null);
     setSelectedCapacity([]);
-    setMaxPrice(100000); // Reset maxPrice to 1 lakh
-    setFilters({ type: null, capacity: [], maxPrice: 100000 }); // Reset filters maxPrice to 1 lakh
+    setMaxPrice(10000); // Reset maxPrice to 1 lakh
+    setFilters({ type: null, capacity: [], maxPrice: 10000 }); // Reset filters maxPrice to 1 lakh
     setShowMore(8);
   };
 
@@ -88,8 +88,8 @@ const Filter = () => {
           <h3>Price</h3>
           <input
             type="range"
-            min="1000" // Min set to 1000
-            max="100000" // Max set to 1 lakh
+            min="500" // Min set to 1000
+            max="10000" // Max set to 1 lakh
             value={maxPrice}
             onChange={(e) => setMaxPrice(parseInt(e.target.value))}
           />
