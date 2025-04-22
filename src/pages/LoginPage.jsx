@@ -60,11 +60,16 @@ const LoginPage = () => {
       };
 
       const { data } = await axios.post(`${API_BASE_URL}/login`, payload);
-      const { token, user } = data;
+      console.log("Login response:", data);
+
+      const token = data.token;
+      const user = data.user || data.owner;
 
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem(isUser ? 'user' : 'owner', JSON.stringify(user));
+
       navigate(isUser ? '/home' : '/owner-dashboard');
+
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");
     } finally {

@@ -127,12 +127,12 @@ const AboutUs = () => {
     if (!token || !user?._id) return setState(p => ({...p, isGuest: true}));
 
     try {
-      const { data } = await axios.get(`${API_BASE_URL}/profile/${user._id}`, {
+      const { data } = await axios.get(`${API_BASE_URL}/userProfile/${user._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (data?.profilePic) {
         const picUrl = data.profilePic instanceof File ? data.profilePic.preview 
-          : `${API_BASE_URL.replace('/api', '')}/uploads/${data.profilePic}`;
+          : `${API_BASE_URL.replace('/api', '')}/uploads/users/${data.profilePic}`;
         setState(p => ({...p, profilePic: picUrl, isGuest: false}));
       }
     } catch (error) {

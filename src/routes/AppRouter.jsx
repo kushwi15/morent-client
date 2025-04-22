@@ -13,6 +13,10 @@ import TC from "../pages/T&C";
 import PP from "../pages/Policy";
 import ContactUs from "../pages/ContactUs";
 import AboutUs from "../pages/AboutUs";
+import OwnerprofilePage from "../pages/OwnerProfilePage"
+
+// OWNER DASHBOARD
+import OwnerDashboard from "../pages/OwnerDashboard";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 /**
@@ -42,6 +46,12 @@ const AppRouter = () => {
           <Route path="/privacypolicy" element={<PP />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/about" element={<AboutUs />} />
+
+
+          {/* OWNER DASHBOARD */}
+          <Route path="/owner-dashboard" element={<ProtectedRoute element={<OwnerDashboard />} />} />
+          <Route path="/owner-profile" element={<ProtectedRoute element={<OwnerprofilePage />} />} />
+
         </Routes>
       </ErrorBoundary>
     </Router>

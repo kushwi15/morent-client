@@ -21,17 +21,17 @@ const Header = ({ isGuest }) => {
   const fetchProfile = async () => {
     if (isGuest) return;
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user?._id) return;
+      const owner = JSON.parse(localStorage.getItem("owner"));
+      if (!owner?._id) return;
       
-      const { data } = await axios.get(`${API_BASE_URL}/userProfile/${user._id}`, {
+      const { data } = await axios.get(`${API_BASE_URL}/ownerProfile/${owner._id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
 
       if (data?.profilePic) {
         const picUrl = data.profilePic instanceof File 
           ? data.profilePic.preview 
-          : `${API_BASE_URL.replace('/api', '')}/uploads/users/${data.profilePic}`;
+          : `${API_BASE_URL.replace('/api', '')}/uploads/owners/${data.profilePic}`;
         setProfilePic(picUrl);
       }
     } catch (error) {
@@ -57,7 +57,7 @@ const Header = ({ isGuest }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem("owner");
     navigate("/login");
   };
 
@@ -73,7 +73,7 @@ const Header = ({ isGuest }) => {
   const profileItems = isGuest
     ? [{ icon: FaUser, text: "Login", action: () => navigate("/login") }]
     : [
-        { icon: FaUser, text: "My Profile", action: () => navigate("/profile") },
+        { icon: FaUser, text: "My Profile", action: () => navigate("/owner-profile") },
         { icon: FaFileAlt, text: "Documents", action: () => {} },
         { icon: FaBook, text: "Bookings", action: () => {} },
         { icon: FaGift, text: "Rewards", action: () => {} },

@@ -11,12 +11,12 @@ const API_BASE_URL = "https://morent-gjjg.onrender.com/api";
 const ProfilePage = () => {
   // State Management
   const [editMode, setEditMode] = useState(false);
-  const [userProfile, setUserProfile] = useState(null);
+  const [ownerProfile, setOwnerProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const [ownerData, setOwnerData] = useState(null);
   const [formData, setFormData] = useState({
-    userId: "",
+    ownerId: "",
     name: "",
     dob: "",
     phone: "",
@@ -53,12 +53,12 @@ const ProfilePage = () => {
 
   // Effect Hooks
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    const storedOwner = localStorage.getItem("owner");
+    if (storedOwner) {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser && parsedUser._id) {
-          setUserData(parsedUser);
+        const parsedOwner = JSON.parse(storedOwner);
+        if (parsedOwner && parsedOwner._id) {
+          setOwnerData(parsedOwner);
         } else {
           navigate("/login");
         }
@@ -71,16 +71,16 @@ const ProfilePage = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (userData && userData._id) {
+    if (ownerData && ownerData._id) {
       setFormData(prev => ({
         ...prev,
-        userId: userData._id,
-        name: userData.fullName || "",
-        email: userData.email || "",
-        phone: userData.phoneNumber || "",
+        ownerId: ownerData._id,
+        name: ownerData.fullName || "",
+        email: ownerData.email || "",
+        phone: ownerData.phoneNumber || "",
       }));
     }
-  }, [userData]);
+  }, [ownerData]);
 
   useEffect(() => {
     return () => {
@@ -93,28 +93,28 @@ const ProfilePage = () => {
   }, [formData]);
 
   useEffect(() => {
-    fetchUserProfileData();
-  }, [userData?._id]);
+    fetchOwnerProfileData();
+  }, [ownerData?._id]);
 
   // Data Fetching
-  const fetchUserProfileData = async () => {
-    if (!userData?._id) return;
+  const fetchOwnerProfileData = async () => {
+    if (!ownerData?._id) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/userProfile/${userData._id}`,
+        `${API_BASE_URL}/ownerProfile/${ownerData._id}`,
         { headers: getAuthHeaders() }
       );
 
       if (response.data) {
-        setUserProfile(response.data);
+        setOwnerProfile(response.data);
         setFormData(prev => ({
           ...prev,
           ...response.data,
-          userId: userData._id
+          ownerId: ownerData._id
         }));
       }
     } catch (error) {
@@ -144,8 +144,8 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      if (!formData.userId) {
-        alert("User ID is missing");
+      if (!formData.ownerId) {
+        alert("Owner ID is missing");
         return;
       }
   
@@ -153,7 +153,7 @@ const ProfilePage = () => {
       setError(null);
   
       const formDataToSend = new FormData();
-      formDataToSend.append('userId', formData.userId);
+      formDataToSend.append('ownerId', formData.ownerId);
   
       const nonFileFields = ['name', 'dob', 'address', 'city', 'state', 'zipCode', 'country'];
       nonFileFields.forEach(key => {
@@ -178,20 +178,20 @@ const ProfilePage = () => {
         },
       };
   
-      const url = userProfile 
-        ? `${API_BASE_URL}/userProfile/${formData.userId}`
-        : `${API_BASE_URL}/userProfile`;
+      const url = ownerProfile 
+        ? `${API_BASE_URL}/ownerProfile/${formData.ownerId}`
+        : `${API_BASE_URL}/ownerProfile`;
   
-      const method = userProfile ? 'patch' : 'post';
+      const method = ownerProfile ? 'patch' : 'post';
   
       const response = await axios[method](url, formDataToSend, config);
   
-      const updatedUserProfileData = response.data.userProfile || response.data;
+      const updatedOwnerProfileData = response.data.ownerProfile || response.data;
   
-      setUserProfile(updatedUserProfileData);
+      setOwnerProfile(updatedOwnerProfileData);
       setFormData(prev => ({
         ...prev,
-        ...updatedUserProfileData,
+        ...updatedOwnerProfileData,
         ...fileFields.reduce((acc, field) => {
           if (formData[field] instanceof File) {
             acc[field] = formData[field];
@@ -220,7 +220,7 @@ const ProfilePage = () => {
       setLoading(true);
       
       const formDataToSend = new FormData();
-      formDataToSend.append('userId', formData.userId);
+      formDataToSend.append('ownerId', formData.ownerId);
       formDataToSend.append('profilePic', '');
       
       const config = {
@@ -231,15 +231,15 @@ const ProfilePage = () => {
       };
   
       await axios.patch(
-        `${API_BASE_URL}/userProfile/${formData.userId}`,
+        `${API_BASE_URL}/ownerProfile/${formData.ownerId}`,
         formDataToSend,
         config
       );
   
       setFormData(prev => ({ ...prev, profilePic: null }));
       
-      if (userProfile) {
-        setUserProfile(prev => ({ ...prev, profilePic: null }));
+      if (ownerProfile) {
+        setOwnerProfile(prev => ({ ...prev, profilePic: null }));
       }
       
     } catch (error) {
@@ -250,14 +250,14 @@ const ProfilePage = () => {
     }
   };
 
-  const onClose = () => navigate("/home");
+  const onClose = () => navigate("/owner-dashboard");
 
   // Render Helpers
-  const renderUserProfileImage = () => {
+  const renderOwnerProfileImage = () => {
     const imageUrl = formData.profilePic instanceof File
       ? formData.profilePic.preview
       : formData.profilePic
-      ? `${API_BASE_URL.replace('/api', '')}/uploads/users/${formData.profilePic}`
+      ? `${API_BASE_URL.replace('/api', '')}/uploads/owners/${formData.profilePic}`
       : DefaultPic;
 
     return (
@@ -280,7 +280,7 @@ const ProfilePage = () => {
         src={
           formData[key] instanceof File
             ? formData[key].preview
-            : `${API_BASE_URL.replace('/api', '')}/uploads/users/${formData.userId}/${extractFilename(formData[key])}?${Date.now()}`
+            : `${API_BASE_URL.replace('/api', '')}/uploads/owners/${formData.ownerId}/${extractFilename(formData[key])}?${Date.now()}`
         }
         alt={key}
         onError={(e) => {
@@ -292,7 +292,7 @@ const ProfilePage = () => {
   };
 
   // Loading and Error States
-  if (loading && !userProfile) return <div className="profile-modal-overlay">Loading...</div>;
+  if (loading && !ownerProfile) return <div className="profile-modal-overlay">Loading...</div>;
 
   if (error) return (
     <div className="profile-modal-overlay">
@@ -322,7 +322,7 @@ const ProfilePage = () => {
 
         {/* Profile Picture Section */}
         <div className="profile-picture">
-          {renderUserProfileImage()}
+          {renderOwnerProfileImage()}
           {editMode && (
             <div className="file-upload">
               <label>
